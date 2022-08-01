@@ -9,24 +9,22 @@ import java.net.URL;
 
 public class getApiVersion {
 
+
+
     /**
      * @Param: IP address of the MCSS API server, including the port
      * @Param: ApiKey of the MCSS API server
      * @param: SSL (true/false)
      * @return the apiVersion
      */
-    public static String getApiVersion(String IP, String ApiKey, Boolean SSL) {
+    public static String get(String IP, String ApiKey) {
         //Get the version using the ApiKey from /api/v1
         String apiVersion = "";
         String line;
         URL url;
         try {
-            if (SSL) {
-                url = new URL("https://" + IP + "/api/v1/");
-            } else {
-                url = new URL("http://" + IP + "/api/v1/");
-            }
-
+            url = new URL("https://" + IP + "/api/v1/");
+            
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
