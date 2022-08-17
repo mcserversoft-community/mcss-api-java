@@ -1,25 +1,28 @@
 package com.mcssapi.barebones.servers;
 
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class getOnlineServerCount {
+public class getServers {
+
     /**
      * @Param: IP address of the MCSS API server, including the port
      * @Param: ApiKey of the MCSS API server
-     * @param: SSL (true/false)
-     * @return Number of servers, -1 if error during request.
+     * @return JSONObject containing the servers, or null if error during request.
      */
-    public static int getOnlineServerCount(String IP, String ApiKey, Boolean SSL) {
-        //api/v1/servers/count/online
+    public static JSONObject get(String IP, String ApiKey, @Nullable String filter) {
+        //api/v1/servers
         URL url;
         try {
-            if (SSL) {
-                url = new URL("https://" + IP + "/api/v1/servers/count/online");
-            } else {
-                url = new URL("http://" + IP + "/api/v1/servers/count/online");
-            }
+            if (filter == null)
+            url = new URL("https://" + IP + "/api/v1/servers");
+            else
+            url = new URL("https://" + IP + "/api/v1/servers?filter=" + filter);
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
@@ -30,10 +33,13 @@ public class getOnlineServerCount {
             if (responseCode != 200) {
                 throw new IOException("Error: " + responseCode);
             }
-            return Integer.parseInt(conn.getResponseMessage());
+            //return the jsonobject
+            return new JSONObject(conn.getOutputStream());
+
         } catch (IOException e) {
             e.printStackTrace();
-            return -1;
+            return null;
         }
+
     }
 }
