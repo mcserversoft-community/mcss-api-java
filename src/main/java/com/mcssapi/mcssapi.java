@@ -30,6 +30,13 @@ public class mcssapi {
         checkVersionMismatch();
     }
 
+    /**
+     * Get general information about the MCSS install
+     * @return Info object containing the information
+     * @throws IOException General IO error
+     * @throws APIUnauthorizedException API token is invalid/expired
+     * @throws APIVersionMismatchException API version is not compatible with this library
+     */
     public Info getInfo() throws IOException, APIUnauthorizedException, APIVersionMismatchException {
             URL url;
 
