@@ -1,7 +1,7 @@
 # MCSS API wrapper for Java
 
 [![forthebadge](https://forthebadge.com/images/badges/fuck-it-ship-it.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)  [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com)  
-![GitHub issues](https://img.shields.io/github/issues/Les-Projects/mcss-api-java?style=for-the-badge)  ![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/Les-Projects/mcss-api-java?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/Les-Projects/mcss-api-java?style=for-the-badge)  ![GitHub pull requests](https://img.shields.io/github/issues-pr/Les-Projects/mcss-api-java?label=Pull%20Requests&style=for-the-badge)
 
 
 ## Introduction
