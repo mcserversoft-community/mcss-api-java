@@ -2,9 +2,17 @@ package com.mcssapi;
 
 import com.mcssapi.barebones.getApiVersion;
 import com.mcssapi.barebones.servers.getServerCount;
-import com.mcssapi.barebones.servers.getServers;
+import com.mcssapi.exceptions.APIUnauthorizedException;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 public class mcssapi {
 
@@ -18,11 +26,36 @@ public class mcssapi {
         this.token = token;
     }
 
+    public Info getInfo() throws IOException, APIUnauthorizedException {
+            URL url;
+
+            url = new URL("https://" + IP + "/api/v1/info");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+            conn.setReadTimeout(5000);
+            conn.setRequestProperty("APIKey", token);
+
+            conn.connect();
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 401) {
+                throw new APIUnauthorizedException("Got 401 response code when getting info.");
+            }
+
+            //save the response in a JSONObject
+            JSONObject json = new JSONObject(conn.getOutputStream());
+
+            return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"), json.getString("MCSSApiVersion"), json.getString("UniqueID"), json.getBoolean("youAreAwesome"));
+    }
+
+
     /**
      * Get the version of the API
      * @return version as a string, or ERR_ and the error code. As an
      * example, ERR_401 means that the API returned an error code 401
      */
+    /*
     public String getApiVersion() {
         try {
             this.version = getApiVersion.get(IP, token);
@@ -32,6 +65,8 @@ public class mcssapi {
         }
         return this.version;
     }
+    */
+
 
     /**
      * Get the number of servers. Parameters can be NULL
@@ -39,6 +74,7 @@ public class mcssapi {
      * @param serverTypeID only required if using filter 3, servertypeID is the GUID of a servertype
      * @return number of servers, -1 if error during request. (INT)
      */
+    /*
     public int getServerCount(@Nullable String filter, @Nullable String serverTypeID) {
         try {
             return getServerCount.get(IP, token, filter, serverTypeID);
@@ -47,42 +83,9 @@ public class mcssapi {
             return -1;
         }
     }
+    */
 
-    class getServerData extends mcssapi {
 
-        public getServerData(String IP, String token) {
-            super(IP, token);
-        }
-
-        /**
-         * Get the servers. Parameters can be NULL
-         * @param filter can be 0,1,2. 0 = no filter, 1 = minimal info, 2 = status info
-         * @return JSON object containing the servers, or null if error during request.
-         */
-        public JSONObject getServersAsJSON(@Nullable String filter) {
-            try {
-                return com.mcssapi.barebones.servers.getServers.get(IP, token, filter);
-            } catch (Exception e) {
-                System.out.println("Error while getting servers! Error: " + e.getMessage());
-                return null;
-            }
-        }
-
-        public String[] getGUID(@Nullable String filter) {
-            try {
-                JSONObject json = com.mcssapi.barebones.servers.getServers.get(IP, token, filter);
-                assert json != null;
-                String[] GUIDs = new String[json.length()];
-                for (int i = 0; i < json.length(); i++) {
-                    GUIDs[i] = json.getJSONObject(String.valueOf(i)).getString("GUID");
-                }
-                return GUIDs;
-            } catch (Exception e) {
-                System.out.println("Error while getting servers! Error: " + e.getMessage());
-                return null;
-            }
-        }
-    }
 
 
 }
