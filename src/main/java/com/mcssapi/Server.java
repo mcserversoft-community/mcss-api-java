@@ -166,6 +166,9 @@ public class Server {
             throw new APINotFoundException("Got 404 response code when executing server action " + action.name() +
                     " for server " + Name + ".");
         }
+
+        //close connection
+        conn.disconnect();
     }
 
     /**
@@ -217,6 +220,10 @@ public class Server {
             throw new APINotFoundException("Got 404 response code when executing server action \"" + command +
                     "\" for server " + Name + ".");
         }
+
+        //close connection
+        conn.disconnect();
+
     }
 
     /**
@@ -226,12 +233,57 @@ public class Server {
      * @throws IOException if there is an error with the connection
      * @throws APINotFoundException if the server is not found
      */
-    public void executeServerCommands(String[] commands) throws APIUnauthorizedException, IOException, APINotFoundException {
-        //for every string execute the command singularly
-        for (String command : commands) {
-            //call the execute server command method
-            executeServerCommand(command);
+    public void executeServerCommands(String... commands) throws APIUnauthorizedException, IOException, APINotFoundException {
+        //Create the URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/commands");
+
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        //Connect to the API
+        conn.connect();
+
+        //Create the json object to send
+        StringBuilder json = new StringBuilder("{\"commands\": [");
+        for (int i = 0; i < commands.length; i++) {
+            json.append("\"").append(commands[i]).append("\"");
+            if (i != commands.length - 1) {
+                json.append(",");
+            }
         }
+        json.append("]}");
+        //Get the outputstream of the connection
+        OutputStream os = conn.getOutputStream();
+        //Write the json to the outputstream
+        os.write(json.toString().getBytes());
+        //Flush and close the outputstream
+        os.flush();
+        os.close();
+
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when executing multiple server commands " +
+                    "for server " + Name + ".");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when executing multiple server commands " +
+                    "for server " + Name + ".");
+        }
+
+        //close connection
+        conn.disconnect();
     }
 
 }
