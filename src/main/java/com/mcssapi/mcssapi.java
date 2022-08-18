@@ -5,7 +5,6 @@ import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APIVersionMismatchException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
