@@ -16,9 +16,13 @@ public class mcssapi {
     protected String token = null;
     protected String version = null;
 
-    public mcssapi(String IP, String token) {
+    public mcssapi(String IP, String token) throws APIUnauthorizedException, APIVersionMismatchException, IOException {
         this.IP = IP;
         this.token = token;
+
+        Info in = getInfo();
+        this.version = in.getMCSSApiVersion();
+        checkVersionMismatch();
     }
 
     public Info getInfo() throws IOException, APIUnauthorizedException, APIVersionMismatchException {

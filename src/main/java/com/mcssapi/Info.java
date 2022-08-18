@@ -19,8 +19,6 @@ public class Info {
         this.MCSSApiVersion = MCSSApiVersion;
         this.UniqueID = UniqueID;
         this.youAreAwesome = youAreAwesome;
-
-        checkVersionMismatch();
     }
 
     /**
@@ -55,10 +53,4 @@ public class Info {
         return youAreAwesome;
     }
 
-    private void checkVersionMismatch() throws APIVersionMismatchException {
-        if (!Objects.equals(MCSSApiVersion, "1.0.0")) {
-            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + MCSSApiVersion + "." +
-                    "API Wrapper might have issues. Proceed with caution.");
-        }
-    }
 }
