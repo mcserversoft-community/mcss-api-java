@@ -3,7 +3,6 @@ package com.mcssapi;
 import com.mcssapi.exceptions.APINotFoundException;
 import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APIVersionMismatchException;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -173,8 +172,8 @@ public class mcssapi {
      * @throws IOException if there is an error with the connection
      * @return number of servers
      */
-    public int getServerCount(String filter) throws APIUnauthorizedException, IOException {
-        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter);
+    public int getServerCount(ServerStatus filter) throws APIUnauthorizedException, IOException {
+        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue());
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -205,8 +204,8 @@ public class mcssapi {
      * @throws IOException if there is an error with the connection
      * @return number of servers
      */
-    public int getServerCount(String filter, String serverTypeID) throws APIUnauthorizedException, IOException {
-        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter + "&serverTypeID=" + serverTypeID);
+    public int getServerCount(ServerStatus filter, String serverTypeID) throws APIUnauthorizedException, IOException {
+        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue() + "&serverTypeID=" + serverTypeID);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
