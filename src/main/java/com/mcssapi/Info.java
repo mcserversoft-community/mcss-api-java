@@ -2,7 +2,6 @@ package com.mcssapi;
 
 import com.mcssapi.exceptions.APIVersionMismatchException;
 
-import java.util.Objects;
 
 public class Info {
 
