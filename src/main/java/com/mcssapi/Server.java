@@ -219,5 +219,20 @@ public class Server {
         }
     }
 
+    /**
+     * Executes multiple commands on the server
+     * @param commands Array of strings of the commands to execute
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
+    public void executeServerCommands(String[] commands) throws APIUnauthorizedException, IOException, APINotFoundException {
+        //for every string execute the command singularly
+        for (String command : commands) {
+            //call the execute server command method
+            executeServerCommand(command);
+        }
+    }
+
 }
 
