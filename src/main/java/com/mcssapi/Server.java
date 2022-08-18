@@ -543,7 +543,7 @@ public class Server {
         return console;
     }
 
-    public boolean isConsoleOutdated(String lastLine, String secondLastLine) throws APIUnauthorizedException, IOException, APINotFoundException {
+    public boolean isConsoleOutdated(String secondLastLine, String lastLine ) throws APIUnauthorizedException, IOException, APINotFoundException {
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console/outdated" +
                 "?lastLine=" + lastLine + "&secondLastLine=" + secondLastLine);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
