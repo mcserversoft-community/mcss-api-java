@@ -1,12 +1,18 @@
 package com.mcssapi;
 
+import com.mcssapi.exceptions.APINotFoundException;
 import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APIVersionMismatchException;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class mcssapi {
@@ -49,6 +55,59 @@ public class mcssapi {
             conn.disconnect();
 
             return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"), json.getString("MCSSApiVersion"), json.getString("UniqueID"), json.getBoolean("youAreAwesome"));
+    }
+
+    public ArrayList<Server> getServers() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //create the ArrayList
+        ArrayList<Server> servers = new ArrayList<>();
+
+        //create the URL
+        URL url = new URL("https://" + IP + "/api/v1/servers");
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        //Connect to the API
+        conn.connect();
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting servers.");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when getting servers.");
+        }
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        //close connection
+        conn.disconnect();
+        //Create the JsonArray from the JSONObject
+        JSONArray serversArray = new JSONArray(json);
+        //Create a DateTimeFormatter to parse the creationDate
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+        //loop through the JsonArray and create a Server object for each server
+        for (int i = 0; i < serversArray.length(); i++) {
+            JSONObject server = serversArray.getJSONObject(i);
+            //Create the Server object with parsed values from JSON, and add it to the ArrayList
+            servers.add(new Server(server.getString("guid"), server.getInt("status"),
+                    server.getString("name"), server.getString("description"), server.getString("pathToFolder"),
+                    server.getString("folderName"),  LocalDateTime.parse(server.getString("creationDate"),formatter),
+                    server.getBoolean("isSetToAutostart"), server.getInt("keepOnline"), server.getInt("javaAllocatedMemory"),
+                    server.getString("javaStartupLine"), this));
+        }
+
+        //return the ArrayList
+        return servers;
+
     }
 
     private void checkVersionMismatch() throws APIVersionMismatchException {
