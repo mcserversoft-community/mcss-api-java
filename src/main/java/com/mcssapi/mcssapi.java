@@ -3,6 +3,7 @@ package com.mcssapi;
 import com.mcssapi.exceptions.APINotFoundException;
 import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APIVersionMismatchException;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -136,21 +137,98 @@ public class mcssapi {
 
 
     /**
-     * Get the number of servers. Parameters can be NULL
-     * @param filter not required, 0 for all, 1 for online, 2 for offline, 3 if using servertype filter
-     * @param serverTypeID only required if using filter 3, servertypeID is the GUID of a servertype
-     * @return number of servers, -1 if error during request. (INT)
+     * Get the number of servers.
+     * @throws APIUnauthorizedException if the APIKey is invalid
+     * @throws IOException if there is an error with the connection
+     * @return number of servers
      */
-    /*
-    public int getServerCount(@Nullable String filter, @Nullable String serverTypeID) {
-        try {
-            return getServerCount.get(IP, token, filter, serverTypeID);
-        } catch (Exception e) {
-            System.out.println("Error while getting server count! Error: " + e.getMessage());
-            return -1;
+    public int getServerCount() throws APIUnauthorizedException, IOException {
+        URL url = new URL("https://" + IP + "/api/v1/servers/count");
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting info.");
         }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+        return json.getInt("count");
     }
-    */
+
+    /**
+     * Get the number of servers.
+     * @param filter 0 for all, 1 for online, 2 for offline, 3 if using servertype filter
+     * @throws APIUnauthorizedException if the APIKey is invalid
+     * @throws IOException if there is an error with the connection
+     * @return number of servers
+     */
+    public int getServerCount(String filter) throws APIUnauthorizedException, IOException {
+        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter);
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+        return json.getInt("count");
+    }
+
+    /**
+     * Get the number of servers. Only used for the servertype filter.
+     * @param filter 0 for all, 1 for online, 2 for offline, 3 if using servertype filter
+     * @param serverTypeID only required if using filter 3, servertypeID is the GUID of a server, to be used as a filter
+     * @throws APIUnauthorizedException if the APIKey is invalid
+     * @throws IOException if there is an error with the connection
+     * @return number of servers
+     */
+    public int getServerCount(String filter, String serverTypeID) throws APIUnauthorizedException, IOException {
+        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter + "&serverTypeID=" + serverTypeID);
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+        return json.getInt("count");
+    }
+
 
 
 
