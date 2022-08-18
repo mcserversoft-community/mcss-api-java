@@ -40,46 +40,79 @@ public class Server {
         this.api = api;
     }
 
+    /**
+     * @return GUID of the server
+     */
     public String getGUID() {
         return GUID;
     }
 
+    /**
+     * @return int of the status of the server.
+     */
     public int getStatus() {
         return Status;
     }
 
+    /**
+     * @return the name of the server
+     */
     public String getName() {
         return Name;
     }
 
+    /**
+     * @return the description of the server
+     */
     public String getDescription() {
         return Description;
     }
 
+    /**
+     * @return the path to the folder of the server
+     */
     public String getPathToFolder() {
         return PathToFolder;
     }
 
+    /**
+     * @return the name of the folder of the server
+     */
     public String getFolderName() {
         return FolderName;
     }
 
+    /**
+     * @return the creation date of the server
+     */
     public LocalDateTime getCrationDate() {
         return CrationDate;
     }
 
+    /**
+     * @return true if the server is set to autostart, false if not
+     */
     public boolean getIsSetToAutostart() {
         return IsSetToAutostart;
     }
 
+    /**
+     * @return the keep online time of the server
+     */
     public int getKeepOnline() {
         return KeepOnline;
     }
 
+    /**
+     * @return the allocated memory of the server, in megabytes
+     */
     public int getJavaAllocatedMemory() {
         return JavaAllocatedMemory;
     }
 
+    /**
+     * @return the startup line of the server
+     */
     public String getJavaStartupLine() {
         return JavaStartupLine;
     }
@@ -93,12 +126,13 @@ public class Server {
      */
     public void executeServerAction(ServerAction action) throws APIUnauthorizedException, IOException, APINotFoundException {
 
-        URL url;
+        //Create the URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/action");
 
-        url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/action");
-
+        //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
+        //set the connection variables, request proprieties and request method
         conn.setRequestMethod("POST");
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
@@ -107,13 +141,23 @@ public class Server {
         conn.setDoOutput(true);
         conn.setDoInput(true);
 
+        //Connect to the API
+        conn.connect();
+
+        //Create the json object to send
         String json = "{\"actionId\":" + action.getValue() + "}";
+        //Get the outputstream of the connection
         OutputStream os = conn.getOutputStream();
+        //Write the json to the outputstream
         os.write(json.getBytes());
+        //Flush and close the outputstream
         os.flush();
         os.close();
-        conn.connect();
+
+        //Get the response code of the connection
         int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
         if (responseCode == 401) {
             throw new APIUnauthorizedException("Got 401 response code when executing server action " + action.name() +
                     " for server " + Name + ".");
@@ -132,12 +176,14 @@ public class Server {
      * @throws APINotFoundException if the server is not found
      */
     public void executeServerCommand(String command) throws APIUnauthorizedException, IOException, APINotFoundException {
-        URL url;
 
-        url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/command");
+        //Create the URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/command");
 
+        //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
+        //set the connection variables, request proprieties and request method
         conn.setRequestMethod("POST");
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
@@ -146,13 +192,23 @@ public class Server {
         conn.setDoOutput(true);
         conn.setDoInput(true);
 
+        //Connect to the API
+        conn.connect();
+
+        //Create the json object to send
         String json = "{\"command\": \"" + command + "\"}";
+        //Get the outputstream of the connection
         OutputStream os = conn.getOutputStream();
+        //Write the json to the outputstream
         os.write(json.getBytes());
+        //Flush and close the outputstream
         os.flush();
         os.close();
-        conn.connect();
+
+        //Get the response code of the connection
         int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
         if (responseCode == 401) {
             throw new APIUnauthorizedException("Got 401 response code when executing server command \" " + command +
                     " \" for server " + Name + ".");
