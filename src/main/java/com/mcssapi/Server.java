@@ -2,8 +2,12 @@ package com.mcssapi;
 
 import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APINotFoundException;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -284,6 +288,287 @@ public class Server {
 
         //close connection
         conn.disconnect();
+    }
+
+    /**
+     * Get last console lines
+     * @param lines amount of lines to get
+     * @return string array of the last console lines
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
+    public String[] getConsole(int lines) throws APIUnauthorizedException, IOException, APINotFoundException {
+
+        //Create URL with query parameter
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines);
+
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        //Connect to the API
+        conn.connect();
+
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        }
+
+        //Get response in a JSON object
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        //get the JSON array from the object
+        JSONArray consoleJsonArray = new JSONArray(json);
+
+        //Create a string array to store the console
+        String[] console = new String[consoleJsonArray.length()];
+
+        //Loop through the array and add the strings to the array
+        for (int i = 0; i < consoleJsonArray.length(); i++) {
+            console[i] = consoleJsonArray.getString(i);
+        }
+
+        //close connection
+        conn.disconnect();
+
+        //return the console
+        return console;
+    }
+
+    /**
+     * Get last console lines, with the ability to take the lines from the beginning of the console instead of the end
+     * @param lines amount of lines to get
+     * @param takeFromBeginning true if you want to get the lines from the beginning of the console, false if you want to get the lines from the end of the console
+     * @return string array of the last console lines
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
+    public String[] getConsoleFromBeginning(int lines, boolean takeFromBeginning) throws APIUnauthorizedException, IOException, APINotFoundException {
+
+        //parse boolean to the written version of it
+        String t;
+        if (takeFromBeginning) t = "true"; else t = "false";
+
+        //Create URL with query parameters
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
+                "?takeFromBeginning=" + t);
+
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        //Connect to the API
+        conn.connect();
+
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        }
+
+        //Get response in a JSON object
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        //get the JSON array from the object
+        JSONArray consoleJsonArray = new JSONArray(json);
+
+        //Create a string array to store the console
+        String[] console = new String[consoleJsonArray.length()];
+
+        //Loop through the array and add the strings to the array
+        for (int i = 0; i < consoleJsonArray.length(); i++) {
+            console[i] = consoleJsonArray.getString(i);
+        }
+
+        //close connection
+        conn.disconnect();
+
+        //return the console
+        return console;
+    }
+
+    /**
+     * Get last console lines, with the ability reverse the lines of the console
+     * @param lines amount of lines to get
+     * @param reversed true if you want to reverse the lines of the console, false if you want to get the lines in the normal order
+     * @return string array of the last console lines
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
+    public String[] getConsoleReversed(int lines, boolean reversed) throws APIUnauthorizedException, IOException, APINotFoundException {
+
+        //parse boolean to the written version of it
+        String t;
+        if (reversed) t = "true"; else t = "false";
+
+        //Create URL with query parameters
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
+                "?reversed=" + t);
+
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        //Connect to the API
+        conn.connect();
+
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        }
+
+        //Get response in a JSON object
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        //get the JSON array from the object
+        JSONArray consoleJsonArray = new JSONArray(json);
+
+        //Create a string array to store the console
+        String[] console = new String[consoleJsonArray.length()];
+
+        //Loop through the array and add the strings to the array
+        for (int i = 0; i < consoleJsonArray.length(); i++) {
+            console[i] = consoleJsonArray.getString(i);
+        }
+
+        //close connection
+        conn.disconnect();
+
+        //return the console
+        return console;
+    }
+
+    /**
+     * Get last console lines, with the ability to take the lines from the beginning of the console instead of the end and the ability to reverse the console lines
+     * @param lines amount of lines to get
+     * @param takeFromBeginning true if you want to get the lines from the beginning of the console, false if you want to get the lines from the end of the console
+     * @param reversed true if you want to reverse the lines of the console, false if you want to get the lines in the normal order
+     * @return string array of the last console lines
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
+    public String[] getConsole(int lines, boolean takeFromBeginning, boolean reversed) throws APIUnauthorizedException, IOException, APINotFoundException {
+
+        //parse boolean to the written version of it
+        String fromBeginning;
+        String reverse;
+        if (takeFromBeginning) fromBeginning = "true"; else fromBeginning = "false";
+        if (reversed) reverse = "true"; else reverse = "false";
+
+        //Create URL with query parameters
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
+                "?takeFromBeginning=" + fromBeginning + "?reversed=" + reverse);
+
+        //Create and open the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the connection variables, request proprieties and request method
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+
+        //Connect to the API
+        conn.connect();
+
+        //Get the response code of the connection
+        int responseCode = conn.getResponseCode();
+
+        //if the responsecode is an error, throw an exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
+        } else if (responseCode == 404) {
+            //Might never fire, better safe than sorry
+            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        }
+
+        //Get response in a JSON object
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        //get the JSON array from the object
+        JSONArray consoleJsonArray = new JSONArray(json);
+
+        //Create a string array to store the console
+        String[] console = new String[consoleJsonArray.length()];
+
+        //Loop through the array and add the strings to the array
+        for (int i = 0; i < consoleJsonArray.length(); i++) {
+            console[i] = consoleJsonArray.getString(i);
+        }
+
+        //close connection
+        conn.disconnect();
+
+        //return the console
+        return console;
+    }
+
+    public boolean isConsoleOutdated(String lastLine, String secondLastLine) throws APIUnauthorizedException, IOException, APINotFoundException {
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console/outdated" +
+                "?lastLine=" + lastLine + "&secondLastLine=" + secondLastLine);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when getting info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+
+        //return the boolean value of the response
+        return json.getBoolean("isOutdated");
     }
 
 }
