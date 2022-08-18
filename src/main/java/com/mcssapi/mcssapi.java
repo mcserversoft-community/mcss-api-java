@@ -1,18 +1,13 @@
 package com.mcssapi;
 
-import com.mcssapi.barebones.getApiVersion;
-import com.mcssapi.barebones.servers.getServerCount;
 import com.mcssapi.exceptions.APIUnauthorizedException;
-import org.jetbrains.annotations.Nullable;
+import com.mcssapi.exceptions.APIVersionMismatchException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Objects;
 
 public class mcssapi {
 
@@ -26,7 +21,7 @@ public class mcssapi {
         this.token = token;
     }
 
-    public Info getInfo() throws IOException, APIUnauthorizedException {
+    public Info getInfo() throws IOException, APIUnauthorizedException, APIVersionMismatchException {
             URL url;
 
             url = new URL("https://" + IP + "/api/v1/info");
@@ -46,7 +41,17 @@ public class mcssapi {
             //save the response in a JSONObject
             JSONObject json = new JSONObject(conn.getOutputStream());
 
+            //close connection
+            conn.disconnect();
+
             return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"), json.getString("MCSSApiVersion"), json.getString("UniqueID"), json.getBoolean("youAreAwesome"));
+    }
+
+    private void checkVersionMismatch() throws APIVersionMismatchException {
+        if (!Objects.equals(version, "1.0.0")) {
+            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + version + "." +
+                    "API Wrapper might have issues. Proceed with caution.");
+        }
     }
 
 

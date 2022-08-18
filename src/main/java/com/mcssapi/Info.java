@@ -1,5 +1,9 @@
 package com.mcssapi;
 
+import com.mcssapi.exceptions.APIVersionMismatchException;
+
+import java.util.Objects;
+
 public class Info {
 
     private boolean isDev = false;
@@ -9,12 +13,14 @@ public class Info {
     //will be set to true by the API
     private boolean youAreAwesome = false;
 
-    protected Info (Boolean isDev, String MCSSVersion, String MCSSApiVersion, String UniqueID, Boolean youAreAwesome) {
+    protected Info (Boolean isDev, String MCSSVersion, String MCSSApiVersion, String UniqueID, Boolean youAreAwesome) throws APIVersionMismatchException {
         this.isDev = isDev;
         this.MCSSVersion = MCSSVersion;
         this.MCSSApiVersion = MCSSApiVersion;
         this.UniqueID = UniqueID;
         this.youAreAwesome = youAreAwesome;
+
+        checkVersionMismatch();
     }
 
     /**
@@ -47,5 +53,12 @@ public class Info {
 
     public boolean getYouAreAwesome() {
         return youAreAwesome;
+    }
+
+    private void checkVersionMismatch() throws APIVersionMismatchException {
+        if (!Objects.equals(MCSSApiVersion, "1.0.0")) {
+            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + MCSSApiVersion + "." +
+                    "API Wrapper might have issues. Proceed with caution.");
+        }
     }
 }
