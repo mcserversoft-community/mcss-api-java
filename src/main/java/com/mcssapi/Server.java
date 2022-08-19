@@ -16,20 +16,20 @@ import java.time.LocalDateTime;
 public class Server {
 
     private String GUID;
-    private int Status;
+    private ServerStatus Status;
     private String Name;
     private String Description;
     private String PathToFolder;
     private String FolderName;
     private LocalDateTime CrationDate;
     private boolean IsSetToAutostart;
-    private int KeepOnline;
+    private KeepOnline KeepOnline;
     private int JavaAllocatedMemory;
     private String JavaStartupLine;
 
     private mcssapi api;
 
-    protected Server(String GUID, int Status, String Name, String Description, String PathToFolder, String FolderName, LocalDateTime CrationDate, boolean IsSetToAutostart, int KeepOnline, int JavaAllocatedMemory, String JavaStartupLine, mcssapi api) {
+    protected Server(String GUID, ServerStatus Status, String Name, String Description, String PathToFolder, String FolderName, LocalDateTime CrationDate, boolean IsSetToAutostart, KeepOnline KeepOnline, int JavaAllocatedMemory, String JavaStartupLine, mcssapi api) {
         this.GUID = GUID;
         this.Status = Status;
         this.Name = Name;
@@ -54,7 +54,7 @@ public class Server {
     /**
      * @return int of the status of the server.
      */
-    public int getStatus() {
+    public ServerStatus getStatus() {
         return Status;
     }
 
@@ -103,7 +103,7 @@ public class Server {
     /**
      * @return the keep online time of the server
      */
-    public int getKeepOnline() {
+    public KeepOnline getKeepOnline() {
         return KeepOnline;
     }
 

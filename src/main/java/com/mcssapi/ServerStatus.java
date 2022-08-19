@@ -2,10 +2,11 @@ package com.mcssapi;
 
 public enum ServerStatus {
 
-    NONE(0),
+    OFFLINE(0),
     ONLINE(1),
-    OFFLINE(2),
-    FILTER(3);
+    RESTARTING(2),
+    STARTING(3),
+    STOPPING(4);
 
     private final int value;
 
@@ -14,4 +15,14 @@ public enum ServerStatus {
     }
 
     public int getValue() { return value; }
+
+    public static ServerStatus findByVal(int abbr){
+        for(ServerStatus v : values()){
+            if( v.getValue() == abbr ){
+                return v;
+            }
+        }
+        throw new IllegalArgumentException("No ServerStatus with value " + abbr);
+    }
+
 }

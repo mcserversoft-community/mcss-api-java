@@ -104,10 +104,10 @@ public class mcssapi {
         for (int i = 0; i < serversArray.length(); i++) {
             JSONObject server = serversArray.getJSONObject(i);
             //Create the Server object with parsed values from JSON, and add it to the ArrayList
-            servers.add(new Server(server.getString("guid"), server.getInt("status"),
+            servers.add(new Server(server.getString("guid"), ServerStatus.findByVal(server.getInt("status")),
                     server.getString("name"), server.getString("description"), server.getString("pathToFolder"),
                     server.getString("folderName"),  LocalDateTime.parse(server.getString("creationDate"),formatter),
-                    server.getBoolean("isSetToAutostart"), server.getInt("keepOnline"), server.getInt("javaAllocatedMemory"),
+                    server.getBoolean("isSetToAutostart"), KeepOnline.findByVal(server.getInt("keepOnline")), server.getInt("javaAllocatedMemory"),
                     server.getString("javaStartupLine"), this));
         }
 
@@ -179,7 +179,7 @@ public class mcssapi {
      * @throws IOException if there is an error with the connection
      * @return number of servers
      */
-    public int getServerCount(ServerStatus filter) throws APIUnauthorizedException, IOException {
+    public int getServerCount(ServerFilter filter) throws APIUnauthorizedException, IOException {
         URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue());
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -211,7 +211,7 @@ public class mcssapi {
      * @throws IOException if there is an error with the connection
      * @return number of servers
      */
-    public int getServerCount(ServerStatus filter, String serverTypeID) throws APIUnauthorizedException, IOException {
+    public int getServerCount(ServerFilter filter, String serverTypeID) throws APIUnauthorizedException, IOException {
         URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue() + "&serverTypeID=" + serverTypeID);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
