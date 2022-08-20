@@ -8,7 +8,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ public class Task {
     private boolean Enabled;
     private TaskType TaskType;
 
-    private boolean Deleted;
+    private boolean Deleted = false;
 
 
     //Not passing timing information because not all tasks have it.
@@ -106,6 +108,126 @@ public class Task {
      */
     public boolean isEnabled() {
         return Enabled;
+    }
+
+    /**
+     * Get the timing information for the Task.
+     * @return the timing information for the Task
+     * @throws IOException if there is an error connecting to the server
+     * @throws APIUnauthorizedException if the API key is invalid
+     * @throws APINotFoundException if the server or task is not found
+     * @throws APIInvalidTaskDetailsException if the task has no timing information, or if the task has an invalid timing information
+     */
+    public LocalTime getTime() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
+        if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Timeless tasks don't have time details.");
+        } else if (TaskType == com.mcssapi.TaskType.INTERVAL) {
+            throw new APIInvalidTaskDetailsException("Interval tasks don't have time details.");
+        } else if (Deleted) {
+            throw new APINotFoundException("Cannot get time of a deleted task.");
+        }
+
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //create a connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+
+        //connect to the server
+        conn.connect();
+
+        //get the response code
+        int responseCode = conn.getResponseCode();
+
+        //if the response code is 401 or 404, throw the relevant exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when getting task info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+
+        //Extract the timing JSONObject
+        JSONObject timing = json.getJSONObject("timing");
+
+        //Extract the timeSpan variable and parse it to a LocalTime
+        String timeSpan = timing.getString("timeSpan");
+        Pattern p = Pattern.compile("(\\d{2}):(\\d{2}):(\\d{2})");
+        Matcher m = p.matcher(timeSpan);
+        if (m.find()) {
+            int hour = Integer.parseInt(m.group(1));
+            int minute = Integer.parseInt(m.group(2));
+            int second = Integer.parseInt(m.group(3));
+            return LocalTime.of(hour, minute, second);
+        } else {
+            throw new APIInvalidTaskDetailsException("Could not parse timeSpan to LocalTime.");
+        }
+
+    }
+
+    /**
+     * Get the interval information for the Task.
+     * @return Long int of the interval in seconds
+     * @throws APIUnauthorizedException if the API key is invalid
+     * @throws APINotFoundException if the server or task is not found
+     * @throws APIInvalidTaskDetailsException if the task has no interval information, or if the task has an invalid interval information
+     * @throws IOException if there is an error connecting to the server
+     */
+    public long getInterval() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+
+        //Check if the task has an interval
+        if (TaskType == com.mcssapi.TaskType.FIXED_TIME) {
+            throw new APIInvalidTaskDetailsException("Fixed time tasks don't have interval details.");
+        } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Timeless tasks don't have interval details.");
+        } else if (Deleted) {
+            throw new APINotFoundException("Cannot get interval of a deleted task.");
+        }
+
+        //Create the URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //create a connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+
+        //connect to the server
+        conn.connect();
+
+        //get the response code
+        int responseCode = conn.getResponseCode();
+
+        //if the response code is 401 or 404, throw the relevant exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when getting task info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+
+        //Extract the timing JSONObject
+        JSONObject timing = json.getJSONObject("timing");
+        return timing.getLong("interval");
     }
 
     /**
@@ -223,6 +345,72 @@ public class Task {
         //close connection
         conn.disconnect();
 
+    }
+
+    /**
+     * Change the interval of an Interval task
+     * @throws APIUnauthorizedException if the API key is invalid
+     * @throws APINotFoundException if the server or task is not found
+     * @throws APIInvalidTaskDetailsException if the task has no interval information, or if the task has an invalid interval information
+     * @throws IOException if there is an error connecting to the server
+     */
+    public void setInterval(long newInterval) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+
+        //Check if the task has the interval value and that it's not deleted
+        if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Timeless tasks don't have interval details.");
+        } else if (TaskType == com.mcssapi.TaskType.FIXED_TIME) {
+            throw new APIInvalidTaskDetailsException("Fixed Time tasks don't have interval details.");
+        } else if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot set interval of a deleted task.");
+        }
+
+        //Check if the interval is valid
+        if (newInterval < 1) {
+            throw new APIInvalidTaskDetailsException("Interval must be greater than 0.");
+        }
+
+        //Create the URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and request properties
+        conn.setRequestMethod("PUT");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        //Create the JSON
+        String json = """
+                {  "timing": {
+                    "interval":"200"
+                  }
+                }""";
+
+        //Open the connection
+        conn.connect();
+
+        //Write the JSON to the output stream
+        conn.getOutputStream().write(json.getBytes());
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an error, throw the appropriate exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("API token is invalid.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Invalid task/server ID.");
+        } else if (responseCode == 409) {
+            throw new APIInvalidTaskDetailsException("Cannot change timing information.");
+        }
+
+        //Close the connection
+        conn.disconnect();
     }
 
     /**
