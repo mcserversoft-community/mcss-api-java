@@ -111,6 +111,59 @@ public class Task {
     }
 
     /**
+     * Check if the task repeats at the set interval/fixed time
+     * @return true if the task repeats at the set interval/fixed time
+     * @throws APIUnauthorizedException if the API key is invalid
+     * @throws APINotFoundException if the server or task is not found
+     * @throws APIInvalidTaskDetailsException if the task has no timing information
+     * @throws IOException if there is an error connecting to the server
+     */
+    public boolean isRepeating() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+        if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Timeless Tasks cannot repeat.");
+        } else if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Deleted Tasks cannot repeat.");
+        }
+
+        //Create URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //create a connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+
+        //connect to the server
+        conn.connect();
+
+        //get the response code
+        int responseCode = conn.getResponseCode();
+
+        //if the response code is 401 or 404, throw the relevant exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when getting task info.");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+
+        //get the "timing" object from the main JSONObject
+        JSONObject timing = json.getJSONObject("timing");
+
+        //get the "repeat" boolean value from the timing object
+        return timing.getBoolean("repeat");
+    }
+
+    /**
      * Get the timing information for the Task.
      * @return the timing information for the Task
      * @throws IOException if there is an error connecting to the server
@@ -388,7 +441,7 @@ public class Task {
         String json = """
                 {  "timing": {
                     "interval":"200"
-                  }
+                    }
                 }""";
 
         //Open the connection
