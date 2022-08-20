@@ -107,6 +107,13 @@ public class Task {
     }
 
     /**
+     * @return true if the task has been deleted from the API
+     */
+    public boolean isDeleted() {
+        return Deleted;
+    }
+
+    /**
      * Enables the task
      * @throws IOException if there is an error connecting to the server
      * @throws APINotFoundException if the server returns a 404 response code
@@ -286,13 +293,6 @@ public class Task {
         Deleted = true;
         //close connection
         conn.disconnect();
-    }
-
-    /**
-     * @return true if the task has been deleted from the API
-     */
-    public boolean isDeleted() {
-        return Deleted;
     }
 
 }
