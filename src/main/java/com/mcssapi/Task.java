@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Task {
 
@@ -260,6 +262,71 @@ public class Task {
         //close connection
         conn.disconnect();
     }
+
+    /**
+     * Change the task name
+     * @param newName the new name for the task
+     * @throws APIInvalidTaskDetailsException if the server returns a 409 response code
+     * @throws APIUnauthorizedException if the server returns a 401 response code
+     * @throws APINotFoundException if the server returns a 404 response code
+     * @throws IOException if there is an error connecting to the server
+     */
+    public void changeName(String newName) throws APIInvalidTaskDetailsException, APIUnauthorizedException, APINotFoundException, IOException {
+
+        if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot change name of a deleted task.");
+        }
+
+        //Check if new name contains special characters
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(newName);
+        if (m.find()) {
+            throw new APIInvalidTaskDetailsException("Task name cannot contain special characters.");
+        }
+
+        //Create URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //Create connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set request method and request properties
+        conn.setRequestMethod("PUT");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        //Create JSON
+        String json = "{\"name\":\"" + newName + "\"}";
+
+        //Connect to server
+        conn.connect();
+
+        //Write JSON to output stream
+        conn.getOutputStream().write(json.getBytes());
+
+        //Get response code
+        int responseCode = conn.getResponseCode();
+
+        //If response code indicates an error, throw the appropriate exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when changing task name.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when changing task name.");
+        } else if (responseCode == 409) {
+            throw new APIInvalidTaskDetailsException("Got 409 response code when changing task name.");
+        }
+
+        //Close connection
+        conn.disconnect();
+
+        TaskName = newName;
+
+    }
+
+
 
     /**
      * Delete the task from the API
