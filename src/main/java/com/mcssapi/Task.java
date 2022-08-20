@@ -19,6 +19,8 @@ public class Task {
     private boolean Enabled;
     private TaskType TaskType;
 
+    private boolean Deleted;
+
 
     //Not passing timing information because not all tasks have it.
     public Task(MCSSApi api, String GUID, String TaskID, String TaskName, boolean Enabled) throws APIUnauthorizedException, IOException, APINotFoundException, APIInvalidTaskDetailsException {
@@ -112,6 +114,13 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the server returns a 409 response code
      */
     public void setEnabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+
+        if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Cannot enable a timeless task.");
+        } else if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot enable a deleted task.");
+        }
+
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
 
         //create a connection
@@ -161,6 +170,12 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the server returns a 409 response code
      */
     public void setDisabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+
+        if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Cannot disable a timeless task.");
+        } else if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot disable a deleted task.");
+        }
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
 
         //create a connection
@@ -207,7 +222,12 @@ public class Task {
      * @throws APINotFoundException if the server returns a 404 response code
      * @throws APIUnauthorizedException if the server returns a 401 response code
      */
-    public void runTask() throws IOException, APINotFoundException, APIUnauthorizedException {
+    public void runTask() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+
+        if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot run a deleted task.");
+        }
+
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
 
         //create a connection
@@ -262,8 +282,17 @@ public class Task {
         } else if (responseCode == 404) {
             throw new APINotFoundException("Got 404 response code when deleting task.");
         }
+
+        Deleted = true;
         //close connection
         conn.disconnect();
+    }
+
+    /**
+     * @return true if the task has been deleted from the API
+     */
+    public boolean isDeleted() {
+        return Deleted;
     }
 
 }
