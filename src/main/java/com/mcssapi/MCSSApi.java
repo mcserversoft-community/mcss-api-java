@@ -14,14 +14,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class mcssapi {
+public class MCSSApi {
 
     public boolean online = false;
     protected String IP = null;
     protected String token = null;
     protected String version = null;
 
-    public mcssapi(String IP, String token) throws APIUnauthorizedException, APIVersionMismatchException, IOException {
+    public MCSSApi(String IP, String token) throws APIUnauthorizedException, APIVersionMismatchException, IOException {
         this.IP = IP;
         this.token = token;
 

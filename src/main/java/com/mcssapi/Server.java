@@ -2,12 +2,10 @@ package com.mcssapi;
 
 import com.mcssapi.exceptions.APIUnauthorizedException;
 import com.mcssapi.exceptions.APINotFoundException;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -27,9 +25,9 @@ public class Server {
     private int JavaAllocatedMemory;
     private String JavaStartupLine;
 
-    private mcssapi api;
+    private MCSSApi api;
 
-    protected Server(String GUID, ServerStatus Status, String Name, String Description, String PathToFolder, String FolderName, LocalDateTime CrationDate, boolean IsSetToAutostart, KeepOnline KeepOnline, int JavaAllocatedMemory, String JavaStartupLine, mcssapi api) {
+    protected Server(String GUID, ServerStatus Status, String Name, String Description, String PathToFolder, String FolderName, LocalDateTime CrationDate, boolean IsSetToAutostart, KeepOnline KeepOnline, int JavaAllocatedMemory, String JavaStartupLine, MCSSApi api) {
         this.GUID = GUID;
         this.Status = Status;
         this.Name = Name;
