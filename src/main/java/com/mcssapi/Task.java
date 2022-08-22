@@ -27,7 +27,7 @@ public class Task {
 
 
     //Not passing timing information because not all tasks have it.
-    public Task(MCSSApi api, String GUID, String TaskID, String TaskName, boolean Enabled) throws APIUnauthorizedException, IOException, APINotFoundException, APIInvalidTaskDetailsException {
+    protected Task(MCSSApi api, String GUID, String TaskID, String TaskName, boolean Enabled) throws APIUnauthorizedException, IOException, APINotFoundException, APIInvalidTaskDetailsException {
         this.api = api;
         this.GUID = GUID;
         this.TaskID = TaskID;
@@ -71,7 +71,7 @@ public class Task {
 
         //parse the task type from the JSONObject "timing"
         JSONObject timing = json.getJSONObject("timing");
-        if (timing.has("timeSpan")) {
+        if (timing.has("time")) {
             return com.mcssapi.TaskType.FIXED_TIME;
         } else if (timing.has("interval")) {
             return com.mcssapi.TaskType.INTERVAL;
@@ -213,17 +213,17 @@ public class Task {
         //Extract the timing JSONObject
         JSONObject timing = json.getJSONObject("timing");
 
-        //Extract the timeSpan variable and parse it to a LocalTime
-        String timeSpan = timing.getString("timeSpan");
+        //Extract the time variable and parse it to a LocalTime
+        String time = timing.getString("time");
         Pattern p = Pattern.compile("(\\d{2}):(\\d{2}):(\\d{2})");
-        Matcher m = p.matcher(timeSpan);
+        Matcher m = p.matcher(time);
         if (m.find()) {
             int hour = Integer.parseInt(m.group(1));
             int minute = Integer.parseInt(m.group(2));
             int second = Integer.parseInt(m.group(3));
             return LocalTime.of(hour, minute, second);
         } else {
-            throw new APIInvalidTaskDetailsException("Could not parse timeSpan to LocalTime.");
+            throw new APIInvalidTaskDetailsException("Could not parse time to LocalTime.");
         }
 
     }
@@ -466,6 +466,55 @@ public class Task {
         conn.disconnect();
     }
 
+    public void setTime(LocalTime newTime) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+
+        if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot set time of a deleted task.");
+        } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Timeless tasks don't have time details.");
+        } else if (TaskType == com.mcssapi.TaskType.INTERVAL) {
+            throw new APIInvalidTaskDetailsException("Interval tasks don't have time details.");
+        }
+
+        //Create URL
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //Create connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set request method and request properties
+        conn.setRequestMethod("PUT");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        //Create JSON with the newTime
+        String json = "{\"timing\":{\"time\":\"" + newTime.toString() + "\"}}";
+
+        //Open the connection
+        conn.connect();
+
+        //Write the JSON to the output stream
+        conn.getOutputStream().write(json.getBytes());
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an error, throw the appropriate exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("API token is invalid.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Invalid task/server ID.");
+        } else if (responseCode == 409) {
+            throw new APIInvalidTaskDetailsException("Cannot change timing information.");
+        }
+
+        //Close the connection
+        conn.disconnect();
+    }
+
     /**
      * Manually run the task
      * @throws IOException if there is an error connecting to the server
@@ -500,6 +549,60 @@ public class Task {
         } else if (responseCode == 404) {
             throw new APINotFoundException("Got 404 response code when running task.");
         }
+        //close connection
+        conn.disconnect();
+    }
+
+    /**
+     * Set the task to repeat
+     * @param repeat boolean of the new repeat value, true or false
+     * @throws APIUnauthorizedException if the API key is invalid
+     * @throws APINotFoundException if the server or task is not found
+     * @throws APIInvalidTaskDetailsException if the task has no repeat information, or if the task has an invalid repeat information
+     * @throws IOException if there is an error connecting to the server
+     */
+    public void setRepeating(boolean repeat) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+
+        if (Deleted) {
+            throw new APIInvalidTaskDetailsException("Cannot set repeating of a deleted task.");
+        } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
+            throw new APIInvalidTaskDetailsException("Cannot set repeating of a timeless task.");
+        }
+
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+
+        //create a connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("PUT");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        //connect to the server
+        conn.connect();
+
+        //create the JSON
+        String json = " { \"timing\" { \"repeat\": " + repeat + " } }";
+
+        //write the JSON to the output stream
+        conn.getOutputStream().write(json.getBytes());
+
+        //get the response code
+        int responseCode = conn.getResponseCode();
+
+        //if the response code indicates an error, throw the appropriate exception
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("Got 401 response code when setting repeating.");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Got 404 response code when setting repeating.");
+        } else if (responseCode == 409) {
+            throw new APIInvalidTaskDetailsException("Got 409 response code when setting repeating.");
+        }
+
         //close connection
         conn.disconnect();
     }
