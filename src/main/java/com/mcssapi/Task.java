@@ -21,6 +21,8 @@ public class Task {
     private boolean Enabled;
     private TaskType TaskType;
 
+    private TaskJobType TaskJobType;
+
     private boolean Deleted = false;
 
 
@@ -32,6 +34,57 @@ public class Task {
         this.TaskName = TaskName;
         this.Enabled = Enabled;
         this.TaskType = figureOutTaskType();
+        this.TaskJobType = figureOutTaskJobType();
+    }
+
+    private TaskJobType figureOutTaskJobType() throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+
+        if (Deleted) {
+            throw new IllegalStateException("Task is deleted.");
+        }
+
+        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+
+        //create a connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+
+        //connect to the server
+        conn.connect();
+
+        //get the response code
+        int responseCode = conn.getResponseCode();
+
+        //if the response code is 401, throw an APIUnauthorizedException
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException("API Key Invalid/Expired");
+        } else if (responseCode == 404) {
+            throw new APINotFoundException("Server ID or Task ID not found. Was the task/server deleted?");
+        }
+
+        //save the response in a JSONObject
+        JSONObject json = new JSONObject(conn.getOutputStream());
+
+        //close connection
+        conn.disconnect();
+
+        JSONObject jobJson = json.getJSONObject("job");
+
+        if (jobJson.has("action")) {
+            return com.mcssapi.TaskJobType.SERVER_ACTION;
+        } else if (jobJson.has("commands")) {
+            return com.mcssapi.TaskJobType.RUN_COMMANDS;
+        } else if (jobJson.has("backupIdentifier")) {
+            return com.mcssapi.TaskJobType.START_BACKUP;
+        } else {
+            throw new APIInvalidTaskDetailsException("Task has invalid Job Type");
+        }
+
     }
 
     private TaskType figureOutTaskType() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
@@ -279,6 +332,19 @@ public class Task {
         //Extract the timing JSONObject
         JSONObject timing = json.getJSONObject("timing");
         return timing.getLong("interval");
+    }
+
+    public Job getJob() throws APINotFoundException {
+        if (Deleted) {
+            throw new APINotFoundException("Cannot get job of a deleted task.");
+        }
+        if (TaskJobType == com.mcssapi.TaskJobType.SERVER_ACTION) {
+            return new SrvActionJob(api, GUID, TaskID);
+        } else if (TaskJobType == com.mcssapi.TaskJobType.RUN_COMMANDS) {
+            return new runCommandsJob(api, GUID, TaskID);
+        } else if (TaskJobType == com.mcssapi.TaskJobType.START_BACKUP) {
+            return new BackupJob(api, GUID, TaskID);
+        }
     }
 
     /**
