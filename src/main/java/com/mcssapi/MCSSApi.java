@@ -118,28 +118,9 @@ public class MCSSApi {
 
     private void checkVersionMismatch() throws APIVersionMismatchException {
         if (!Objects.equals(version, "1.0.0")) {
-            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + version + "." +
-                    "API Wrapper might have issues. Proceed with caution.");
+            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + version + ".");
         }
     }
-
-
-    /**
-     * Get the version of the API
-     * @return version as a string, or ERR_ and the error code. As an
-     * example, ERR_401 means that the API returned an error code 401
-     */
-    /*
-    public String getApiVersion() {
-        try {
-            this.version = getApiVersion.get(IP, token);
-        } catch (Exception e) {
-            this.version = "ERR_" + e.getMessage();
-            System.out.println("Error while getting API version! Error: " + e.getMessage());
-        }
-        return this.version;
-    }
-    */
 
 
     /**
@@ -174,7 +155,7 @@ public class MCSSApi {
 
     /**
      * Get the number of servers.
-     * @param filter 0 for all, 1 for online, 2 for offline, 3 if using servertype filter
+     * @param filter the filter to use
      * @throws APIUnauthorizedException if the APIKey is invalid
      * @throws IOException if there is an error with the connection
      * @return number of servers
@@ -205,8 +186,8 @@ public class MCSSApi {
 
     /**
      * Get the number of servers. Only used for the servertype filter.
-     * @param filter 0 for all, 1 for online, 2 for offline, 3 if using servertype filter
-     * @param serverTypeID only required if using filter 3, servertypeID is the GUID of a server, to be used as a filter
+     * @param filter the ServerFilter to use
+     * @param serverTypeID Only required if the filter is FILTER
      * @throws APIUnauthorizedException if the APIKey is invalid
      * @throws IOException if there is an error with the connection
      * @return number of servers
