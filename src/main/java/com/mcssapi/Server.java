@@ -119,6 +119,10 @@ public class Server {
         return JavaStartupLine;
     }
 
+    public Scheduler getScheduler() {
+        return new Scheduler(api, GUID);
+    }
+
     /**
      * Execute a power action on the server.
      * @param action 0 invalid, 1 stop, 2 start, 3 kill, 4 restart
