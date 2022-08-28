@@ -344,6 +344,8 @@ public class Task {
             return new runCommandsJob(api, GUID, TaskID);
         } else if (TaskJobType == com.mcssapi.TaskJobType.START_BACKUP) {
             return new BackupJob(api, GUID, TaskID);
+        } else {
+            throw new APINotFoundException("Task has no job.");
         }
     }
 
