@@ -20,6 +20,7 @@ public class MCSSApi {
     protected String IP = null;
     protected String token = null;
     protected String version = null;
+    protected String expectedVersion = "1.0.0";
 
     public MCSSApi(String IP, String token) throws APIUnauthorizedException, APIVersionMismatchException, IOException {
         this.IP = IP;
@@ -51,7 +52,7 @@ public class MCSSApi {
             conn.connect();
             int responseCode = conn.getResponseCode();
             if (responseCode == 401) {
-                throw new APIUnauthorizedException("Got 401 response code when getting info.");
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             }
 
             //save the response in a JSONObject
@@ -86,10 +87,10 @@ public class MCSSApi {
         int responseCode = conn.getResponseCode();
         //if the responsecode is an error, throw an exception
         if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting servers.");
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
         } else if (responseCode == 404) {
             //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when getting servers.");
+            throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
         }
         //save the response in a JSONObject
         JSONObject json = new JSONObject(conn.getOutputStream());
@@ -118,7 +119,8 @@ public class MCSSApi {
 
     private void checkVersionMismatch() throws APIVersionMismatchException {
         if (!Objects.equals(version, "1.0.0")) {
-            throw new APIVersionMismatchException("MCSSApi version mismatch. Expected 1.0.0, got " + version + ".");
+            throw new APIVersionMismatchException(Errors.VERSION_MISMATCH.getMessage().replace("{GOT}", version)
+                    .replace("{EXPECTED_VERSION}", expectedVersion));
         }
     }
 
@@ -142,7 +144,7 @@ public class MCSSApi {
         conn.connect();
         int responseCode = conn.getResponseCode();
         if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
         }
 
         //save the response in a JSONObject
@@ -173,7 +175,7 @@ public class MCSSApi {
         conn.connect();
         int responseCode = conn.getResponseCode();
         if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
         }
 
         //save the response in a JSONObject
@@ -205,7 +207,7 @@ public class MCSSApi {
         conn.connect();
         int responseCode = conn.getResponseCode();
         if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
         }
 
         //save the response in a JSONObject
@@ -215,9 +217,5 @@ public class MCSSApi {
         conn.disconnect();
         return json.getInt("count");
     }
-
-
-
-
 
 }

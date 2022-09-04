@@ -12,6 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Scheduler {
 
@@ -52,10 +54,15 @@ public class Scheduler {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401, throw an APIUnauthorizedException
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting info.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -96,11 +103,16 @@ public class Scheduler {
         //get the response code
         int responseCode = conn.getResponseCode();
 
-        //if the response code is 401, throw an APIUnauthorizedException
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting info.");
+        //if the response code indicates an error, throw an exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -113,6 +125,14 @@ public class Scheduler {
         return json.getInt("tasks");
     }
 
+    /**
+     * Get an arraylist of all the tasks
+     * @return ArrayList of all the tasks
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws APINotFoundException if the server is not found
+     * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APIInvalidTaskDetailsException if the task details are invalid
+     */
     public ArrayList<Task> getTasks() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
         //GET /api/v1/servers/{GUID}/scheduler/
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/");
@@ -132,12 +152,18 @@ public class Scheduler {
         //get the response code
         int responseCode = conn.getResponseCode();
 
-        //if the response code is 401, throw an APIUnauthorizedException
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting info.");
+        //if the response code indicates an error, throw an exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
+
 
         //save the response in a JSONObject
         JSONObject json = new JSONObject(conn.getOutputStream());
@@ -155,6 +181,13 @@ public class Scheduler {
 
     public Task createTimelessTask(String Name, Boolean Enabled, Boolean repeating, int interval, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
 
+
+        //Check if the name contains special characters
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(Name);
+        if (m.find()) {
+            throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
+        }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
 
@@ -181,9 +214,9 @@ public class Scheduler {
         JSONObject jobJson = new JSONObject();
 
         //Populate the JSONObject appropriately
-        if (job instanceof SrvActionJob) {
+        if (job instanceof ServerActionJob) {
             jobJson.put("action", job.getAction());
-        } else if (job instanceof runCommandsJob) {
+        } else if (job instanceof RunCommandsJob) {
             //Create a JSONArray containing the commands, then put it in the jobJson
             JSONArray commands = new JSONArray();
             for (String command : job.getCommands()) {
@@ -212,22 +245,35 @@ public class Scheduler {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw an exception
-        if (responseCode == 400) {
-            throw new APIInvalidTaskDetailsException("Invalid Task Details (ERR_400)");
-        } else if (responseCode == 401) {
-            throw new APIUnauthorizedException("API token invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Invalid server GUID (ERR_404)");
+        switch (responseCode) {
+            case 201:
+                break;
+            case 400:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //If the response code is 201, get the task GUID and return a new Task object
-        //TODO: STALE DUE TO MISSING API IMPLEMENTATION.
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        String taskGUID = json.getString("taskId");
 
-        Task task = new Task(api, GUID, "", "", Enabled);
-        return task;
+        return new Task(api, GUID, taskGUID, Name, Enabled);
     }
 
     public Task createFixedTimeTask(String Name, Boolean Enabled, Boolean repeating, LocalTime time, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+
+        //Check if the name contains special characters
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(Name);
+        if (m.find()) {
+            throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
+        }
+
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
 
         //create a connection
@@ -253,9 +299,9 @@ public class Scheduler {
         JSONObject jobJson = new JSONObject();
 
         //Populate the JSONObject appropriately
-        if (job instanceof SrvActionJob) {
+        if (job instanceof ServerActionJob) {
             jobJson.put("action", job.getAction());
-        } else if (job instanceof runCommandsJob) {
+        } else if (job instanceof RunCommandsJob) {
             //Create a JSONArray containing the commands, then put it in the jobJson
             JSONArray commands = new JSONArray();
             for (String command : job.getCommands()) {
@@ -284,22 +330,35 @@ public class Scheduler {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw an exception
-        if (responseCode == 400) {
-            throw new APIInvalidTaskDetailsException("Invalid Task Details (ERR_400)");
-        } else if (responseCode == 401) {
-            throw new APIUnauthorizedException("API token invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Invalid server GUID (ERR_404)");
+        switch (responseCode) {
+            case 201:
+                break;
+            case 400:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //If the response code is 201, get the task GUID and return a new Task object
-        //TODO: STALE DUE TO MISSING API IMPLEMENTATION.
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        String taskGUID = json.getString("taskId");
 
-        Task task = new Task(api, GUID, "", "", true);
-        return task;
+        return new Task(api, GUID, taskGUID, Name, Enabled);
     }
 
     public Task createIntervalTask(String Name, Boolean Enabled, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+
+        //Check if the name contains special characters
+        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(Name);
+        if (m.find()) {
+            throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
+        }
+
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
 
         //create a connection
@@ -321,9 +380,9 @@ public class Scheduler {
         JSONObject jobJson = new JSONObject();
 
         //Populate the JSONObject appropriately
-        if (job instanceof SrvActionJob) {
+        if (job instanceof ServerActionJob) {
             jobJson.put("action", job.getAction());
-        } else if (job instanceof runCommandsJob) {
+        } else if (job instanceof RunCommandsJob) {
             //Create a JSONArray containing the commands, then put it in the jobJson
             JSONArray commands = new JSONArray();
             for (String command : job.getCommands()) {
@@ -352,19 +411,24 @@ public class Scheduler {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw an exception
-        if (responseCode == 400) {
-            throw new APIInvalidTaskDetailsException("Invalid Task Details (ERR_400)");
-        } else if (responseCode == 401) {
-            throw new APIUnauthorizedException("API token invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Invalid server GUID (ERR_404)");
+        switch (responseCode) {
+            case 201:
+                break;
+            case 400:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //If the response code is 201, get the task GUID and return a new Task object
-        //TODO: STALE DUE TO MISSING API IMPLEMENTATION.
+        JSONObject json = new JSONObject(conn.getOutputStream());
+        String taskGUID = json.getString("taskId");
 
-        Task task = new Task(api, GUID, "", "", true);
-        return task;
+        return new Task(api, GUID, taskGUID, Name, Enabled);
     }
 
 

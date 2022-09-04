@@ -11,13 +11,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class runCommandsJob extends Job {
+public class RunCommandsJob extends Job {
 
     private MCSSApi api;
     private String GUID;
     private String TaskID;
 
-    public runCommandsJob(MCSSApi api, String GUID, String TaskID) {
+    public RunCommandsJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;
         this.TaskID = TaskID;

@@ -40,7 +40,7 @@ public class Task {
     private TaskJobType figureOutTaskJobType() throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
 
         if (Deleted) {
-            throw new IllegalStateException("Task is deleted.");
+            throw new APIInvalidTaskDetailsException(Errors.TASK_DELETED.getMessage());
         }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
@@ -61,10 +61,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401, throw an APIUnauthorizedException
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Key Invalid/Expired");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Server ID or Task ID not found. Was the task/server deleted?");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -82,7 +87,7 @@ public class Task {
         } else if (jobJson.has("backupIdentifier")) {
             return com.mcssapi.TaskJobType.START_BACKUP;
         } else {
-            throw new APIInvalidTaskDetailsException("Task has invalid Job Type");
+            throw new APIInvalidTaskDetailsException(Errors.INVALID_JOB_TYPE.getMessage());
         }
 
     }
@@ -108,12 +113,16 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401 or 404, throw the relevant exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting task info.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
-
         //save the response in a JSONObject
         JSONObject json = new JSONObject(conn.getOutputStream());
 
@@ -129,7 +138,7 @@ public class Task {
         } else if (timing.has("timeless")) {
             return com.mcssapi.TaskType.TIMELESS;
         } else {
-            throw new APIInvalidTaskDetailsException("Task has no timing information.");
+            throw new APIInvalidTaskDetailsException(Errors.NO_TIMING_INFORMATION.getMessage());
         }
     }
 
@@ -171,9 +180,9 @@ public class Task {
      */
     public boolean isRepeating() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
         if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Timeless Tasks cannot repeat.");
+            throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         } else if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Deleted Tasks cannot repeat.");
+            throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
         }
 
         //Create URL
@@ -195,10 +204,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401 or 404, throw the relevant exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting task info.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -224,11 +238,11 @@ public class Task {
      */
     public LocalTime getTime() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
         if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Timeless tasks don't have time details.");
+            throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.INTERVAL) {
-            throw new APIInvalidTaskDetailsException("Interval tasks don't have time details.");
+            throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         } else if (Deleted) {
-            throw new APINotFoundException("Cannot get time of a deleted task.");
+            throw new APINotFoundException(Errors.TIME_DELETED.getMessage());
         }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
@@ -249,10 +263,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401 or 404, throw the relevant exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting task info.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -274,7 +293,7 @@ public class Task {
             int second = Integer.parseInt(m.group(3));
             return LocalTime.of(hour, minute, second);
         } else {
-            throw new APIInvalidTaskDetailsException("Could not parse time to LocalTime.");
+            throw new APIInvalidTaskDetailsException(Errors.COULD_NOT_PARSE_TIME.getMessage());
         }
 
     }
@@ -291,11 +310,11 @@ public class Task {
 
         //Check if the task has an interval
         if (TaskType == com.mcssapi.TaskType.FIXED_TIME) {
-            throw new APIInvalidTaskDetailsException("Fixed time tasks don't have interval details.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Timeless tasks don't have interval details.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
         } else if (Deleted) {
-            throw new APINotFoundException("Cannot get interval of a deleted task.");
+            throw new APINotFoundException(Errors.INTERVAL_DELETED.getMessage());
         }
 
         //Create the URL
@@ -317,10 +336,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code is 401 or 404, throw the relevant exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting task info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting task info.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
@@ -336,16 +360,16 @@ public class Task {
 
     public Job getJob() throws APINotFoundException {
         if (Deleted) {
-            throw new APINotFoundException("Cannot get job of a deleted task.");
+            throw new APINotFoundException(Errors.JOB_DELETED.getMessage());
         }
         if (TaskJobType == com.mcssapi.TaskJobType.SERVER_ACTION) {
-            return new SrvActionJob(api, GUID, TaskID);
+            return new ServerActionJob(api, GUID, TaskID);
         } else if (TaskJobType == com.mcssapi.TaskJobType.RUN_COMMANDS) {
-            return new runCommandsJob(api, GUID, TaskID);
+            return new RunCommandsJob(api, GUID, TaskID);
         } else if (TaskJobType == com.mcssapi.TaskJobType.START_BACKUP) {
             return new BackupJob(api, GUID, TaskID);
         } else {
-            throw new APINotFoundException("Task has no job.");
+            throw new APINotFoundException(Errors.INVALID_JOB_TYPE.getMessage());
         }
     }
 
@@ -366,9 +390,9 @@ public class Task {
     public void setEnabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
 
         if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Cannot enable a timeless task.");
+            throw new APIInvalidTaskDetailsException(Errors.ENABLE_TIMELESS.getMessage());
         } else if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot enable a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.ENABLE_DELETED.getMessage());
         }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
@@ -397,12 +421,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when enabling task.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when enabling task.");
-        } else if (responseCode == 409 ) {
-            throw new APIInvalidTaskDetailsException("Got 409 response code when enabling task.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         Enabled = true;
@@ -422,9 +451,9 @@ public class Task {
     public void setDisabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
 
         if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Cannot disable a timeless task.");
+            throw new APIInvalidTaskDetailsException(Errors.DISABLE_TIMELESS.getMessage());
         } else if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot disable a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.DISABLE_DELETED.getMessage());
         }
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
 
@@ -451,12 +480,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when disabling task.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when disabling task.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Got 409 response code when disabling task.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         Enabled = false;
@@ -477,16 +511,16 @@ public class Task {
 
         //Check if the task has the interval value and that it's not deleted
         if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Timeless tasks don't have interval details.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.FIXED_TIME) {
-            throw new APIInvalidTaskDetailsException("Fixed Time tasks don't have interval details.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
         } else if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot set interval of a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_DELETED.getMessage());
         }
 
         //Check if the interval is valid
         if (newInterval < 1) {
-            throw new APIInvalidTaskDetailsException("Interval must be greater than 0.");
+            throw new APIInvalidTaskDetailsException(Errors.INTERVAL_GREATER_0.getMessage());
         }
 
         //Create the URL
@@ -520,12 +554,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API token is invalid.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Invalid task/server ID.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Cannot change timing information.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Close the connection
@@ -535,11 +574,11 @@ public class Task {
     public void setTime(LocalTime newTime) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot set time of a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.TIME_DELETED.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Timeless tasks don't have time details.");
+            throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.INTERVAL) {
-            throw new APIInvalidTaskDetailsException("Interval tasks don't have time details.");
+            throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         }
 
         //Create URL
@@ -569,12 +608,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API token is invalid.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Invalid task/server ID.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Cannot change timing information.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Close the connection
@@ -590,7 +634,7 @@ public class Task {
     public void runTask() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
 
         if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot run a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.RUN_DELETED.getMessage());
         }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
@@ -610,10 +654,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when running task.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when running task.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
         //close connection
         conn.disconnect();
@@ -630,9 +679,9 @@ public class Task {
     public void setRepeating(boolean repeat) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot set repeating of a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
         } else if (TaskType == com.mcssapi.TaskType.TIMELESS) {
-            throw new APIInvalidTaskDetailsException("Cannot set repeating of a timeless task.");
+            throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         }
 
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
@@ -661,12 +710,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when setting repeating.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when setting repeating.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Got 409 response code when setting repeating.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //close connection
@@ -684,14 +738,14 @@ public class Task {
     public void changeName(String newName) throws APIInvalidTaskDetailsException, APIUnauthorizedException, APINotFoundException, IOException {
 
         if (Deleted) {
-            throw new APIInvalidTaskDetailsException("Cannot change name of a deleted task.");
+            throw new APIInvalidTaskDetailsException(Errors.CHANGE_NAME_DELETED.getMessage());
         }
 
         //Check if new name contains special characters
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(newName);
         if (m.find()) {
-            throw new APIInvalidTaskDetailsException("Task name cannot contain special characters.");
+            throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
         }
 
         //Create URL
@@ -721,12 +775,17 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //If response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when changing task name.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when changing task name.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Got 409 response code when changing task name.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Close connection
@@ -745,6 +804,11 @@ public class Task {
      * @throws APIUnauthorizedException if the server returns a 401 response code
      */
     public void deleteTask() throws IOException, APINotFoundException, APIUnauthorizedException {
+
+        if (Deleted) {
+            throw new APINotFoundException(Errors.TASK_ALREADY_DELETED.getMessage());
+        }
+
         URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
 
         //create a connection
@@ -761,10 +825,15 @@ public class Task {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when deleting task.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when deleting task.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         Deleted = true;

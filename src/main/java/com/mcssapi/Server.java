@@ -164,13 +164,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when executing server action " + action.name() +
-                    " for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when executing server action " + action.name() +
-                    " for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //close connection
@@ -218,13 +220,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when executing server command \" " + command +
-                    " \" for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when executing server action \"" + command +
-                    "\" for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //close connection
@@ -279,13 +283,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when executing multiple server commands " +
-                    "for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when executing multiple server commands " +
-                    "for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //close connection
@@ -323,11 +329,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Get response in a JSON object
@@ -387,11 +397,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Get response in a JSON object
@@ -451,11 +465,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Get response in a JSON object
@@ -518,11 +536,15 @@ public class Server {
         int responseCode = conn.getResponseCode();
 
         //if the responsecode is an error, throw an exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting console for server " + Name + ".");
-        } else if (responseCode == 404) {
-            //Might never fire, better safe than sorry
-            throw new APINotFoundException("Got 404 response code when getting console for server " + Name + ".");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Get response in a JSON object
@@ -557,10 +579,16 @@ public class Server {
 
         conn.connect();
         int responseCode = conn.getResponseCode();
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("Got 401 response code when getting info.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("Got 404 response code when getting info.");
+
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //save the response in a JSONObject
