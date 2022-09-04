@@ -32,7 +32,8 @@ public class BackupJob extends Job {
     @Override
     public String getBackupGUID() throws APIUnauthorizedException, APINotFoundException, IOException {
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //Create the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -50,10 +51,15 @@ public class BackupJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage()+responseCode);
         }
 
         //Get the response body
@@ -69,7 +75,8 @@ public class BackupJob extends Job {
     @Override
     public void setBackupGUID(String backupGUID) throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //Create the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -95,12 +102,17 @@ public class BackupJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Invalid backupIdentifier.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 400:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage()+responseCode);
         }
 
         //Close the connection

@@ -14,4 +14,6 @@ public enum ServerFilter {
     }
 
     public int getValue() { return value; }
+
+    public String getValueStr() { return String.valueOf(value); }
 }

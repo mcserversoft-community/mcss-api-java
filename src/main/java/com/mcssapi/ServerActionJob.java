@@ -11,11 +11,11 @@ import java.net.URL;
 
 public class ServerActionJob extends Job {
 
-    private MCSSApi api;
+    private final MCSSApi api;
 
-    private String GUID;
+    private final String GUID;
 
-    private String TaskID;
+    private final String TaskID;
 
     public ServerActionJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
@@ -34,7 +34,8 @@ public class ServerActionJob extends Job {
     @Override
     public ServerAction getAction() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -52,10 +53,15 @@ public class ServerActionJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Save the response in a jsonobject
@@ -79,7 +85,7 @@ public class ServerActionJob extends Job {
         }
 
         //if the action is not found, throw an exception
-        throw new APIInvalidTaskDetailsException("Action not found or invalid.");
+        throw new APIInvalidTaskDetailsException(Errors.ACTION_NOT_FOUND.getMessage());
 
     }
 
@@ -93,7 +99,8 @@ public class ServerActionJob extends Job {
      */
     public void setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -121,12 +128,17 @@ public class ServerActionJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Action not found or invalid.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //close the connection

@@ -19,9 +19,9 @@ public class Task {
     private final String TaskID;
     private String TaskName;
     private boolean Enabled;
-    private TaskType TaskType;
+    private final TaskType TaskType;
 
-    private TaskJobType TaskJobType;
+    private final TaskJobType TaskJobType;
 
     private boolean Deleted = false;
 
@@ -43,7 +43,7 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.TASK_DELETED.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID).replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -95,7 +95,8 @@ public class Task {
     private TaskType figureOutTaskType() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
 
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -186,7 +187,8 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -245,7 +247,8 @@ public class Task {
             throw new APINotFoundException(Errors.TIME_DELETED.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -318,7 +321,8 @@ public class Task {
         }
 
         //Create the URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -395,7 +399,8 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_DELETED.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -455,7 +460,8 @@ public class Task {
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_DELETED.getMessage());
         }
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -524,7 +530,8 @@ public class Task {
         }
 
         //Create the URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //Create the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -582,7 +589,8 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //Create connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -637,7 +645,8 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.RUN_DELETED.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -684,7 +693,8 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -749,7 +759,8 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //Create connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -809,7 +820,8 @@ public class Task {
             throw new APINotFoundException(Errors.TASK_ALREADY_DELETED.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

@@ -13,19 +13,19 @@ import java.time.LocalDateTime;
 
 public class Server {
 
-    private String GUID;
-    private ServerStatus Status;
-    private String Name;
-    private String Description;
-    private String PathToFolder;
-    private String FolderName;
-    private LocalDateTime CrationDate;
-    private boolean IsSetToAutostart;
-    private KeepOnline KeepOnline;
-    private int JavaAllocatedMemory;
-    private String JavaStartupLine;
+    private final String GUID;
+    private final ServerStatus Status;
+    private final String Name;
+    private final String Description;
+    private final String PathToFolder;
+    private final String FolderName;
+    private final LocalDateTime CrationDate;
+    private final boolean IsSetToAutostart;
+    private final KeepOnline KeepOnline;
+    private final int JavaAllocatedMemory;
+    private final String JavaStartupLine;
 
-    private MCSSApi api;
+    private final MCSSApi api;
 
     protected Server(String GUID, ServerStatus Status, String Name, String Description, String PathToFolder, String FolderName, LocalDateTime CrationDate, boolean IsSetToAutostart, KeepOnline KeepOnline, int JavaAllocatedMemory, String JavaStartupLine, MCSSApi api) {
         this.GUID = GUID;
@@ -133,7 +133,8 @@ public class Server {
     public void executeServerAction(ServerAction action) throws APIUnauthorizedException, IOException, APINotFoundException {
 
         //Create the URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/action");
+        URL url = new URL(Endpoints.EXECUTE_SERVER_ACTION.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -168,7 +169,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -189,7 +190,8 @@ public class Server {
     public void executeServerCommand(String command) throws APIUnauthorizedException, IOException, APINotFoundException {
 
         //Create the URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/command");
+        URL url = new URL(Endpoints.EXECUTE_SERVER_COMMAND.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -224,7 +226,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -245,7 +247,8 @@ public class Server {
      */
     public void executeServerCommands(String... commands) throws APIUnauthorizedException, IOException, APINotFoundException {
         //Create the URL
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/execute/commands");
+        URL url = new URL(Endpoints.EXECUTE_SERVER_COMMANDS.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -287,7 +290,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -309,7 +312,8 @@ public class Server {
     public String[] getConsole(int lines) throws APIUnauthorizedException, IOException, APINotFoundException {
 
         //Create URL with query parameter
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines);
+        URL url = new URL(Endpoints.GET_CONSOLE.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP).replace("{AMOUNT_OF_LINES}", String.valueOf(lines)));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -333,7 +337,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -376,8 +380,9 @@ public class Server {
         if (takeFromBeginning) t = "true"; else t = "false";
 
         //Create URL with query parameters
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
-                "?takeFromBeginning=" + t);
+        URL url = new URL(Endpoints.GET_CONSOLE_FROM_BEGINNING.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP).replace("{AMOUNT_OF_LINES}", String.valueOf(lines))
+                .replace("{BEGINNING}", t));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -401,7 +406,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -444,8 +449,9 @@ public class Server {
         if (reversed) t = "true"; else t = "false";
 
         //Create URL with query parameters
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
-                "?reversed=" + t);
+        URL url = new URL(Endpoints.GET_CONSOLE_REVERSED.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP).replace("{AMOUNT_OF_LINES}", String.valueOf(lines))
+                .replace("{REVERSED}", t));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -469,7 +475,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -515,8 +521,9 @@ public class Server {
         if (reversed) reverse = "true"; else reverse = "false";
 
         //Create URL with query parameters
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console?AmountOfLines=" + lines +
-                "?takeFromBeginning=" + fromBeginning + "?reversed=" + reverse);
+        URL url = new URL(Endpoints.GET_CONSOLE.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP).replace("{AMOUNT_OF_LINES}", String.valueOf(lines))
+                .replace("{BEGINNING}", fromBeginning).replace("{REVERSED}", reverse));
 
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -540,7 +547,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:
@@ -567,9 +574,20 @@ public class Server {
         return console;
     }
 
+    /**
+     * Check if the console is outdated
+     * @param secondLastLine Second to last line for comparison
+     * @param lastLine Last line for comparison
+     * @return true if the console is outdated, false if the console is not outdated
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException if the server is not found
+     */
     public boolean isConsoleOutdated(String secondLastLine, String lastLine ) throws APIUnauthorizedException, IOException, APINotFoundException {
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/console/outdated" +
-                "?lastLine=" + lastLine + "&secondLastLine=" + secondLastLine);
+        URL url = new URL(Endpoints.IS_CONSOLE_OUTDATED.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP).replace("{SECOND_LAST_LINE}", secondLastLine)
+                .replace("{LAST_LINE}", lastLine));
+
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");
@@ -584,7 +602,7 @@ public class Server {
             case 200:
                 break;
             case 404:
-                throw new APIUnauthorizedException(Errors.NOT_FOUND.getMessage());
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             default:

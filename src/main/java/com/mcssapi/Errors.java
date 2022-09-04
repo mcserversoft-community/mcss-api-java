@@ -8,10 +8,11 @@ public enum Errors {
     VERSION_MISMATCH("API version mismatch. Expected version: {VERSION}, got {GOT}"),
     NOT_RECOGNIZED("Error code not recognized. (ERR_UNKNOWN): "),
 
+    ID_FILTER_ERROR("The serverTypeID is only required if the filter is set to FILTER"),
+
 
     //Tasks - Job Messages
     INVALID_TASK_DETAILS("Task details are invalid. (ERR_409)"),
-    INVALID_TASK_OPERATION("Task operation is invalid."),
     NAME_SPECIAL_CHAR("Task name cannot contain special characters."),
 
     TASK_ALREADY_DELETED("Task has already been deleted."),
@@ -38,7 +39,12 @@ public enum Errors {
     TIME_INTERVAL("Interval tasks don't have time details."),
     INTERVAL_GREATER_0("Interval must be greater than 0."),
 
-    INTERVAL_FIXED_TIME("Fixed time tasks don't have an interval.");
+    INTERVAL_FIXED_TIME("Fixed time tasks don't have an interval."),
+
+    COMMANDS_NOT_FOUND("No commands found for this task."),
+    COMMANDS_NOT_GIVEN("No commands were supplied for this task."),
+
+    ACTION_NOT_FOUND("No action found for this task.");
 
     private final String message;
 

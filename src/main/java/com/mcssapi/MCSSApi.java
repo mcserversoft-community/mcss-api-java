@@ -16,7 +16,6 @@ import java.util.Objects;
 
 public class MCSSApi {
 
-    public boolean online = false;
     protected String IP = null;
     protected String token = null;
     protected String version = null;
@@ -36,12 +35,11 @@ public class MCSSApi {
      * @return Info object containing the information
      * @throws IOException General IO error
      * @throws APIUnauthorizedException API token is invalid/expired
-     * @throws APIVersionMismatchException API version is not compatible with this library
      */
-    public Info getInfo() throws IOException, APIUnauthorizedException, APIVersionMismatchException {
+    public Info getInfo() throws IOException, APIUnauthorizedException {
             URL url;
 
-            url = new URL("https://" + IP + "/api/v1/info");
+            url = new URL(Endpoints.ROOT.getEndpoint().replace("{IP}", IP));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
@@ -61,7 +59,9 @@ public class MCSSApi {
             //close connection
             conn.disconnect();
 
-            return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"), json.getString("MCSSApiVersion"), json.getString("UniqueID"), json.getBoolean("youAreAwesome"));
+            return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"),
+                    json.getString("MCSSApiVersion"), json.getString("UniqueID"),
+                    json.getBoolean("youAreAwesome"));
     }
 
     public ArrayList<Server> getServers() throws APIUnauthorizedException, APINotFoundException, IOException {
@@ -70,7 +70,7 @@ public class MCSSApi {
         ArrayList<Server> servers = new ArrayList<>();
 
         //create the URL
-        URL url = new URL("https://" + IP + "/api/v1/servers");
+        URL url = new URL(Endpoints.SERVERS.getEndpoint().replace("{IP}", IP));
         //Create and open the connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -132,7 +132,7 @@ public class MCSSApi {
      * @return number of servers
      */
     public int getServerCount() throws APIUnauthorizedException, IOException {
-        URL url = new URL("https://" + IP + "/api/v1/servers/count");
+        URL url = new URL(Endpoints.SERVER_COUNT.getEndpoint().replace("{IP}", IP));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -163,7 +163,8 @@ public class MCSSApi {
      * @return number of servers
      */
     public int getServerCount(ServerFilter filter) throws APIUnauthorizedException, IOException {
-        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue());
+        URL url = new URL( Endpoints.SERVER_COUNT_FILTER.getEndpoint().replace("{IP}", IP)
+                .replace("{FILTER}", filter.getValueStr()));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -195,7 +196,14 @@ public class MCSSApi {
      * @return number of servers
      */
     public int getServerCount(ServerFilter filter, String serverTypeID) throws APIUnauthorizedException, IOException {
-        URL url = new URL("https://" + IP + "/api/v1/servers/count?filter=" + filter.getValue() + "&serverTypeID=" + serverTypeID);
+
+        if (filter != ServerFilter.FILTER) {
+            throw new IllegalArgumentException(Errors.ID_FILTER_ERROR.getMessage());
+        }
+
+        URL url = new URL(Endpoints.SERVER_COUNT_FILTER_SRVTYPE.getEndpoint().replace("{IP}", IP)
+                .replace("{FILTER}", filter.getValueStr())
+                .replace("{SRVTYPE}", serverTypeID));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 

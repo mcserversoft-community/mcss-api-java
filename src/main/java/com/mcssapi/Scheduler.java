@@ -35,8 +35,9 @@ public class Scheduler {
      */
     public int getTotalTaskAmount() throws APIUnauthorizedException, APINotFoundException, IOException {
 
-        //GET /api/v1/servers/{GUID}/scheduler/
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/");
+        //GET /api/v1/servers/{SERVER_ID}/scheduler/
+        URL url = new URL(Endpoints.GET_SCHEDULER.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -85,8 +86,9 @@ public class Scheduler {
      */
     public int getTotalTaskAmount(TaskType filter) throws APIUnauthorizedException, APINotFoundException, IOException {
 
-        //GET /api/v1/servers/{GUID}/scheduler/
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/?filter=" + filter.getValue());
+        //GET /api/v1/servers/{SERVER_ID}/scheduler/
+        URL url = new URL(Endpoints.GET_SCHEDULER.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID).replace("{FILTER}", filter.toString()));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -134,8 +136,9 @@ public class Scheduler {
      * @throws APIInvalidTaskDetailsException if the task details are invalid
      */
     public ArrayList<Task> getTasks() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
-        //GET /api/v1/servers/{GUID}/scheduler/
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/");
+        //GET /api/v1/servers/{SERVER_ID}/scheduler/
+        URL url = new URL(Endpoints.GET_TASK_LIST.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -189,7 +192,8 @@ public class Scheduler {
             throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
+        URL url = new URL(Endpoints.CREATE_TASK.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -274,7 +278,8 @@ public class Scheduler {
             throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
+        URL url = new URL(Endpoints.CREATE_TASK.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -359,7 +364,8 @@ public class Scheduler {
             throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/tasks");
+        URL url = new URL(Endpoints.CREATE_TASK.getEndpoint().replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

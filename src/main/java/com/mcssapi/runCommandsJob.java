@@ -34,7 +34,8 @@ public class RunCommandsJob extends Job {
     @Override
     public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TaskID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -52,10 +53,15 @@ public class RunCommandsJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //if the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
         //Save the response in a jsonobject
@@ -68,7 +74,7 @@ public class RunCommandsJob extends Job {
         JSONArray commands = job.getJSONArray("commands");
 
         if (commands.length() == 0) {
-            throw new APIInvalidTaskDetailsException("No commands found for this task.");
+            throw new APIInvalidTaskDetailsException(Errors.COMMANDS_NOT_FOUND.getMessage());
         }
 
         //Get the commands array
@@ -97,10 +103,11 @@ public class RunCommandsJob extends Job {
     public void setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         if (commands.length == 0) {
-            throw new APIInvalidTaskDetailsException("No commands supplied for this task.");
+            throw new APIInvalidTaskDetailsException(Errors.COMMANDS_NOT_GIVEN.getMessage());
         }
 
-        URL url = new URL("https://" + api.IP + "/api/v1/servers/" + GUID + "/scheduler/" + TaskID);
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TaskID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -135,12 +142,17 @@ public class RunCommandsJob extends Job {
         int responseCode = conn.getResponseCode();
 
         //If the response code indicates an error, throw the appropriate exception
-        if (responseCode == 401) {
-            throw new APIUnauthorizedException("API Token is invalid or expired.");
-        } else if (responseCode == 404) {
-            throw new APINotFoundException("TaskID or ServerID invalid.");
-        } else if (responseCode == 409) {
-            throw new APIInvalidTaskDetailsException("Invalid Job Details.");
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
     }
 }

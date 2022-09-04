@@ -12,7 +12,7 @@ public class Info {
     //will be set to true by the API
     private boolean youAreAwesome = false;
 
-    protected Info (Boolean isDev, String MCSSVersion, String MCSSApiVersion, String UniqueID, Boolean youAreAwesome) throws APIVersionMismatchException {
+    protected Info (Boolean isDev, String MCSSVersion, String MCSSApiVersion, String UniqueID, Boolean youAreAwesome) {
         this.isDev = isDev;
         this.MCSSVersion = MCSSVersion;
         this.MCSSApiVersion = MCSSApiVersion;
