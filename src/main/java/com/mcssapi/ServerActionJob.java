@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class SrvActionJob extends Job {
+public class ServerActionJob extends Job {
 
     private MCSSApi api;
 
@@ -17,7 +17,7 @@ public class SrvActionJob extends Job {
 
     private String TaskID;
 
-    public SrvActionJob(MCSSApi api, String GUID, String TaskID) {
+    public ServerActionJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;
         this.TaskID = TaskID;
