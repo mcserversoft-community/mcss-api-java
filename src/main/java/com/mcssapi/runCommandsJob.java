@@ -23,6 +23,11 @@ public class RunCommandsJob extends Job {
         this.TaskID = TaskID;
     }
 
+    @Override
+    public ServerAction getAction(){
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
     /**
      * Get an array list of commands that the task executes
      * @return ArrayList of commands
@@ -90,6 +95,16 @@ public class RunCommandsJob extends Job {
 
     }
 
+    @Override
+    public String getBackupGUID() {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public Job setAction(ServerAction action) {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
 
     /**
      * Update the commands to be executed by the task
@@ -100,7 +115,7 @@ public class RunCommandsJob extends Job {
      * @throws IOException if there is an IO error (e.g. server is offline)
      */
     @Override
-    public void setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public Job setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         if (commands.length == 0) {
             throw new APIInvalidTaskDetailsException(Errors.COMMANDS_NOT_GIVEN.getMessage());
@@ -154,5 +169,11 @@ public class RunCommandsJob extends Job {
             default:
                 throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
+        return this;
+    }
+
+    @Override
+    public Job setBackupGUID(String backupGUID) {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 }

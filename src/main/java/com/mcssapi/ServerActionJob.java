@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class ServerActionJob extends Job {
 
@@ -89,6 +90,16 @@ public class ServerActionJob extends Job {
 
     }
 
+    @Override
+    public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public String getBackupGUID() {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
     /**
      * The action to be performed on the server.
      * @param action the action to be performed on the server.
@@ -97,7 +108,7 @@ public class ServerActionJob extends Job {
      * @throws IOException If there is an IO error (e.g. server is offline).
      * @throws APIInvalidTaskDetailsException If the task is not found.
      */
-    public void setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public Job setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
                 .replace("{TASK_ID}", TaskID));
@@ -143,7 +154,17 @@ public class ServerActionJob extends Job {
 
         //close the connection
         conn.disconnect();
+        return this;
+    }
 
+    @Override
+    public Job setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public Job setBackupGUID(String backupGUID) {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 
 }

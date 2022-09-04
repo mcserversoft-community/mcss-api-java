@@ -3,23 +3,35 @@ package com.mcssapi;
 import com.mcssapi.exceptions.APIInvalidTaskDetailsException;
 import com.mcssapi.exceptions.APINotFoundException;
 import com.mcssapi.exceptions.APIUnauthorizedException;
+import jdk.jshell.spi.ExecutionControl;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class BackupJob extends Job {
 
-    private MCSSApi api;
-    private String GUID;
-    private String TaskID;
+    private final MCSSApi api;
+    private final String GUID;
+    private final String TaskID;
 
 
     public BackupJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;
         this.TaskID = TaskID;
+    }
+
+    @Override
+    public ServerAction getAction() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 
     /**
@@ -73,7 +85,17 @@ public class BackupJob extends Job {
     }
 
     @Override
-    public void setBackupGUID(String backupGUID) throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+    public Job setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public Job setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
+    }
+
+    @Override
+    public Job setBackupGUID(String backupGUID) throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
                 .replace("{TASK_ID}", TaskID));
@@ -117,5 +139,6 @@ public class BackupJob extends Job {
 
         //Close the connection
         conn.disconnect();
+        return this;
     }
 }

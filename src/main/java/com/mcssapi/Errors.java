@@ -44,6 +44,8 @@ public enum Errors {
     COMMANDS_NOT_FOUND("No commands found for this task."),
     COMMANDS_NOT_GIVEN("No commands were supplied for this task."),
 
+    METHOD_NOT_SUPPORTED("This method is not supported for this job type."),
+
     ACTION_NOT_FOUND("No action found for this task.");
 
     private final String message;
