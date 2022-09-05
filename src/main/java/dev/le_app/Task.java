@@ -4,8 +4,10 @@ import dev.le_app.exceptions.APIInvalidTaskDetailsException;
 import dev.le_app.exceptions.APINotFoundException;
 import dev.le_app.exceptions.APIUnauthorizedException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalTime;
@@ -53,6 +55,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //connect to the server
         conn.connect();
@@ -73,7 +76,8 @@ public class Task {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -106,6 +110,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //connect to the server
         conn.connect();
@@ -125,7 +130,8 @@ public class Task {
                 throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -198,6 +204,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //connect to the server
         conn.connect();
@@ -218,7 +225,8 @@ public class Task {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -258,6 +266,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //connect to the server
         conn.connect();
@@ -278,7 +287,8 @@ public class Task {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -332,6 +342,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //connect to the server
         conn.connect();
@@ -352,7 +363,8 @@ public class Task {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -832,6 +844,7 @@ public class Task {
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
         conn.setDoOutput(true);
+
         conn.connect();
         //get the response code
         int responseCode = conn.getResponseCode();

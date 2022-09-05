@@ -4,8 +4,10 @@ import dev.le_app.exceptions.APIInvalidTaskDetailsException;
 import dev.le_app.exceptions.APINotFoundException;
 import dev.le_app.exceptions.APIUnauthorizedException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -54,6 +56,7 @@ public class BackupJob extends Job {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
 
         //Connect to the server
         conn.connect();
@@ -74,7 +77,8 @@ public class BackupJob extends Job {
         }
 
         //Get the response body
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //Get the job object
         JSONObject job = json.getJSONObject("job");
