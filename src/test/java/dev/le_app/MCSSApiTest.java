@@ -1,5 +1,6 @@
 package dev.le_app;
 
+import dev.le_app.exceptions.APIInvalidTaskDetailsException;
 import dev.le_app.exceptions.APINotFoundException;
 import dev.le_app.exceptions.APIUnauthorizedException;
 import dev.le_app.exceptions.APIVersionMismatchException;
@@ -67,7 +68,7 @@ class MCSSApiTest {
     }
 
     @Test
-    @DisplayName("Get Servers")
+    @DisplayName("Test the get servers method")
     @Order(3)
     void testGetServers() {
         try {
@@ -88,6 +89,90 @@ class MCSSApiTest {
     }
 
     @Test
+    @DisplayName("Test the get scheduler method")
+    @Order(4)
+    void testGetScheduler() {
+
+        scheduler = servers.get(0).getScheduler();
+
+        assertNotNull(scheduler, "Scheduler is null");
+    }
+
+    @Test
+    @DisplayName("Test the get tasks method")
+    @Order(5)
+    void testGetTasks() {
+        try {
+            tasks = scheduler.getTasks();
+        } catch (APIUnauthorizedException e) {
+            e.printStackTrace();
+            fail("Thrown ApiUnauthorizedException while getting tasks");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Thrown IOException while getting tasks");
+        } catch (APINotFoundException e) {
+            e.printStackTrace();
+            fail("Thrown APINotFoundException while getting tasks");
+        } catch (APIInvalidTaskDetailsException e) {
+            e.printStackTrace();
+            fail("Thrown APIInvalidTaskDetailsException while getting tasks");
+        }
+        assertNotNull(tasks, "Tasks is null");
+        assertTrue(tasks.size() > 0, "Tasks is empty");
+        assertNotNull(tasks.get(0).getTaskID(), "Task ID is null");
+    }
+
+    @Test
+    @DisplayName("Test the get tasks method")
+    @Order(6)
+    void testGetJob() {
+        try {
+            job = tasks.get(0).getJob();
+        } catch (APIUnauthorizedException e) {
+            e.printStackTrace();
+            fail("Thrown ApiUnauthorizedException while getting job");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Thrown IOException while getting job");
+        } catch (APINotFoundException e) {
+            e.printStackTrace();
+            fail("Thrown APINotFoundException while getting job");
+        } catch (APIInvalidTaskDetailsException e) {
+            e.printStackTrace();
+            fail("Thrown APIInvalidTaskDetailsException while getting job");
+        }
+        assertNotNull(job, "Job is null");
+        try {
+            if (job instanceof RunCommandsJob) {
+                assertNotNull(job.getCommands(), "Commands is null");
+                assertTrue(job.getCommands().size() > 0, "Commands is empty");
+            } else if (job instanceof BackupJob) {
+                assertNotNull(job.getBackupGUID(), "Backup GUID is null");
+                assertFalse(job.getBackupGUID().isEmpty(), "Backup GUID is empty");
+            } else if (job instanceof ServerActionJob) {
+                assertNotNull(job.getAction(), "Action is null");
+                ServerAction action = job.getAction();
+                for (ServerAction serverAction : ServerAction.values()) {
+                    if (serverAction == action) {
+                        return;
+                    }
+                }
+                fail("Action is not a valid ServerAction");
+            }
+        } catch (APIUnauthorizedException e) {
+            e.printStackTrace();
+            fail("Thrown ApiUnauthorizedException while getting job details");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Thrown IOException while getting job details");
+        } catch (APINotFoundException e) {
+            e.printStackTrace();
+            fail("Thrown APINotFoundException while getting job details");
+        } catch (APIInvalidTaskDetailsException e) {
+            e.printStackTrace();
+            fail("Thrown APIInvalidTaskDetailsException while getting job details");
+        }
+    }
 
 
     @AfterEach
