@@ -4,11 +4,16 @@ import dev.le_app.exceptions.APIUnauthorizedException;
 import dev.le_app.exceptions.APINotFoundException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.Buffer;
 import java.time.LocalDateTime;
 
 public class Server {
@@ -122,6 +127,290 @@ public class Server {
     public Scheduler getScheduler() {
         return new Scheduler(api, GUID);
     }
+
+    /**
+     * Get the server CPU usage
+     * @return the server CPU usage percentage as int
+     * @throws APIUnauthorizedException if the API token is invalid
+     * @throws APINotFoundException if the server is not found
+     * @throws IOException if there is an error while connecting to the API
+     */
+    public int getCpuUsage() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject response = new JSONObject(new JSONTokener(reader));
+
+        //Close the connection
+        conn.disconnect();
+
+        JSONObject stats = response.getJSONObject("latest");
+        return stats.getInt("cpu");
+
+    }
+
+    /**
+     * Get the server RAM usage
+     * @return the server RAM usage in megabytes as int
+     * @throws APIUnauthorizedException if the API token is invalid
+     * @throws APINotFoundException if the server is not found
+     * @throws IOException if there is an error while connecting to the API
+     */
+    public int getRamUsage() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject response = new JSONObject(new JSONTokener(reader));
+
+        //Close the connection
+        conn.disconnect();
+
+        JSONObject stats = response.getJSONObject("latest");
+        return stats.getInt("memoryUsed");
+    }
+
+    public int getMemoryLimit() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject response = new JSONObject(new JSONTokener(reader));
+
+        //Close the connection
+        conn.disconnect();
+
+        JSONObject stats = response.getJSONObject("latest");
+        return stats.getInt("memoryLimit");
+
+    }
+
+
+    /**
+     * Get the number of online players on the server
+     * @return the online player number as an int
+     * @throws APIUnauthorizedException if the API token is invalid
+     * @throws APINotFoundException if the server is not found
+     * @throws IOException if there is an error while connecting to the API
+     */
+    public int getOnlinePlayers() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject response = new JSONObject(new JSONTokener(reader));
+
+        //Close the connection
+        conn.disconnect();
+
+        JSONObject stats = response.getJSONObject("latest");
+        return stats.getInt("playersOnline");
+    }
+
+    /**
+     * Get the player limit on the server
+     * @return the player limit as an int
+     * @throws APIUnauthorizedException if the API token is invalid
+     * @throws APINotFoundException if the server is not found
+     * @throws IOException if there is an error while connecting to the API
+     */
+    public int getPlayerLimit() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject response = new JSONObject(new JSONTokener(reader));
+
+        //Close the connection
+        conn.disconnect();
+
+        JSONObject stats = response.getJSONObject("latest");
+        return stats.getInt("playerLimit");
+    }
+
+    //Get server icon
+    public BufferedImage getServerIcon() throws APIUnauthorizedException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_ICON.getEndpoint().replace("{IP}", api.IP)
+                .replace("{GUID}", GUID));
+
+        //Create the connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //Set the request method and connection proprieties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //If the response code indicates an issue throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        BufferedImage response = ImageIO.read(conn.getInputStream());
+
+        //Close the connection
+        conn.disconnect();
+
+        return response;
+    }
+
+
 
     /**
      * Execute a power action on the server.
