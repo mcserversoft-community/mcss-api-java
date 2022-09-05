@@ -177,5 +177,11 @@ class MCSSApiTest {
 
     @AfterEach
     void tearDown() {
+        api = null;
+        info = null;
+        servers = null;
+        scheduler = null;
+        tasks = null;
+        job = null;
     }
 }
