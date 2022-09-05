@@ -128,18 +128,9 @@ class MCSSApiTest {
     void testGetJob() {
         try {
             job = tasks.get(0).getJob();
-        } catch (APIUnauthorizedException e) {
-            e.printStackTrace();
-            fail("Thrown ApiUnauthorizedException while getting job");
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("Thrown IOException while getting job");
         } catch (APINotFoundException e) {
             e.printStackTrace();
             fail("Thrown APINotFoundException while getting job");
-        } catch (APIInvalidTaskDetailsException e) {
-            e.printStackTrace();
-            fail("Thrown APIInvalidTaskDetailsException while getting job");
         }
         assertNotNull(job, "Job is null");
         try {
