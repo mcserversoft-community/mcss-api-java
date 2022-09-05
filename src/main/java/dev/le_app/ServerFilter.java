@@ -1,4 +1,4 @@
-package com.mcssapi;
+package dev.le_app;
 
 public enum ServerFilter {
 

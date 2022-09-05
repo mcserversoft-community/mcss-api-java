@@ -1,6 +1,4 @@
-package com.mcssapi;
-
-import com.mcssapi.exceptions.APIVersionMismatchException;
+package dev.le_app;
 
 
 public class Info {

@@ -1,4 +1,4 @@
-package com.mcssapi.exceptions;
+package dev.le_app.exceptions;
 
 public class APIInvalidTaskDetailsException extends Exception {
 

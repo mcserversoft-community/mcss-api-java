@@ -1,8 +1,8 @@
-package com.mcssapi;
+package dev.le_app;
 
-import com.mcssapi.exceptions.APINotFoundException;
-import com.mcssapi.exceptions.APIUnauthorizedException;
-import com.mcssapi.exceptions.APIVersionMismatchException;
+import dev.le_app.exceptions.APINotFoundException;
+import dev.le_app.exceptions.APIUnauthorizedException;
+import dev.le_app.exceptions.APIVersionMismatchException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
