@@ -442,8 +442,4 @@ public class Scheduler {
 
         return new Task(api, GUID, taskGUID, Name, Enabled);
     }
-
-
-
-
 }
