@@ -5,10 +5,16 @@ import dev.le_app.exceptions.APIUnauthorizedException;
 import dev.le_app.exceptions.APIVersionMismatchException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import javax.net.ssl.*;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,9 +27,69 @@ public class MCSSApi {
     protected String version = null;
     protected String expectedVersion = "1.0.0";
 
+    protected Boolean allowUnsafeSSL = false;
+
+    /**
+     * Create a new MCSSApi object
+     * @param IP The IP of the MCSS server
+     * @param token The token of the MCSS server
+     * @throws APIUnauthorizedException If the token is invalid
+     * @throws APIVersionMismatchException If the API version of the MCSS server is not the same as the expected version
+     * @throws IOException If there is an error connecting to the MCSS server
+     */
     public MCSSApi(String IP, String token) throws APIUnauthorizedException, APIVersionMismatchException, IOException {
         this.IP = IP;
         this.token = token;
+
+        Info in = getInfo();
+        this.version = in.getMCSSApiVersion();
+        checkVersionMismatch();
+    }
+
+    /**
+     * Get the API object
+     * @param IP The IP of the MCSS server
+     * @param token The token of the MCSS server
+     * @param allowUnsafeSSL True if you want to avoid checking the SSL certificate
+     * @throws APIUnauthorizedException If the token is invalid
+     * @throws APIVersionMismatchException If the API version is not the same as the expected version
+     * @throws IOException If there is an error while connecting to the API
+     */
+    public MCSSApi(String IP, String token, Boolean allowUnsafeSSL) throws APIUnauthorizedException, APIVersionMismatchException, IOException, NoSuchAlgorithmException, KeyManagementException {
+        this.IP = IP;
+        this.token = token;
+        this.allowUnsafeSSL = allowUnsafeSSL;
+
+        if (allowUnsafeSSL) {
+            TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            HostnameVerifier allHostsValid = new HostnameVerifier() {
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+
+            // Install the all-trusting host verifier
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+            //Warn the user of the unsafe SSL connection
+            System.out.println("[MCSSAPI] WARNING: Unsafe SSL connection enabled! NO SSL CERTIFICATES WILL BE VERIFIED!");
+
+        }
 
         Info in = getInfo();
         this.version = in.getMCSSApiVersion();
@@ -37,31 +103,34 @@ public class MCSSApi {
      * @throws APIUnauthorizedException API token is invalid/expired
      */
     public Info getInfo() throws IOException, APIUnauthorizedException {
-            URL url;
+        URL url;
 
-            url = new URL(Endpoints.ROOT.getEndpoint().replace("{IP}", IP));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        url = new URL(Endpoints.ROOT.getEndpoint().replace("{IP}", IP));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-            conn.setReadTimeout(5000);
-            conn.setRequestProperty("APIKey", token);
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setDoInput(true);
 
-            conn.connect();
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 401) {
-                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
-            }
 
-            //save the response in a JSONObject
-            JSONObject json = new JSONObject(conn.getOutputStream());
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401) {
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+        }
 
-            //close connection
-            conn.disconnect();
+        //Read the response
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
-            return new Info(json.getBoolean("isDev"), json.getString("MCSSVersion"),
-                    json.getString("MCSSApiVersion"), json.getString("UniqueID"),
-                    json.getBoolean("youAreAwesome"));
+        //close connection
+        conn.disconnect();
+
+        return new Info(json.getBoolean("isDevBuild"), json.getString("mcssVersion"),
+                json.getString("mcssApiVersion"), json.getString("uniqueIdentifier"),
+                json.getBoolean("youAreAwesome"));
     }
 
     public ArrayList<Server> getServers() throws APIUnauthorizedException, APINotFoundException, IOException {
@@ -79,8 +148,8 @@ public class MCSSApi {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", token);
-        conn.setDoOutput(true);
         conn.setDoInput(true);
+
         //Connect to the API
         conn.connect();
         //Get the response code of the connection
@@ -92,8 +161,11 @@ public class MCSSApi {
             //Might never fire, better safe than sorry
             throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
         }
+
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
+
         //close connection
         conn.disconnect();
         //Create the JsonArray from the JSONObject
@@ -140,6 +212,7 @@ public class MCSSApi {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", token);
+        conn.setDoInput(true);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -148,7 +221,8 @@ public class MCSSApi {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -172,6 +246,7 @@ public class MCSSApi {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", token);
+        conn.setDoInput(true);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -180,7 +255,8 @@ public class MCSSApi {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
@@ -211,6 +287,7 @@ public class MCSSApi {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", token);
+        conn.setDoInput(true);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -219,7 +296,8 @@ public class MCSSApi {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONObject json = new JSONObject(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();
