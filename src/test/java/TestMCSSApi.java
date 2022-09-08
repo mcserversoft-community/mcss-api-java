@@ -1,9 +1,8 @@
-package dev.le_app;
-
-import dev.le_app.exceptions.APIInvalidTaskDetailsException;
-import dev.le_app.exceptions.APINotFoundException;
-import dev.le_app.exceptions.APIUnauthorizedException;
-import dev.le_app.exceptions.APIVersionMismatchException;
+import dev.le_app.mcss_api_java.*;
+import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
+import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
+import dev.le_app.mcss_api_java.exceptions.APIVersionMismatchException;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MCSSApiTest {
+class TestMCSSApi {
 
     MCSSApi api;
     ArrayList<Server> servers;

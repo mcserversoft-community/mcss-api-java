@@ -1,9 +1,8 @@
-package dev.le_app;
+package dev.le_app.mcss_api_java;
 
-import dev.le_app.exceptions.APIInvalidTaskDetailsException;
-import dev.le_app.exceptions.APINotFoundException;
-import dev.le_app.exceptions.APIUnauthorizedException;
-import org.json.JSONArray;
+import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
+import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -13,36 +12,33 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class RunCommandsJob extends Job {
+public class ServerActionJob extends Job {
 
-    private MCSSApi api;
-    private String GUID;
-    private String TaskID;
+    private final MCSSApi api;
 
-    public RunCommandsJob(MCSSApi api, String GUID, String TaskID) {
+    private final String GUID;
+
+    private final String TaskID;
+
+    public ServerActionJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;
         this.TaskID = TaskID;
     }
 
-    @Override
-    public ServerAction getAction(){
-        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
-    }
-
     /**
-     * Get an array list of commands that the task executes
-     * @return ArrayList of commands
-     * @throws APIUnauthorizedException if the API key is invalid
-     * @throws APINotFoundException if the server is not found
-     * @throws IOException if there is an IO error (e.g. server is offline)
-     * @throws APIInvalidTaskDetailsException if the task is not found
+     * Get the action of the job.
+     * @return The action of the job.
+     * @throws APIUnauthorizedException If the API key is not valid.
+     * @throws APINotFoundException If the server is not found.
+     * @throws IOException If there is an IO error (e.g. server is offline).
+     * @throws APIInvalidTaskDetailsException If the task is not found.
      */
     @Override
-    public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+    public ServerAction getAction() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TaskID}", TaskID));
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -79,24 +75,28 @@ public class RunCommandsJob extends Job {
         //Get the Job object
         JSONObject job = json.getJSONObject("job");
 
-        //Get the commands array
-        JSONArray commands = job.getJSONArray("commands");
+        //Get the action
+        int action = job.getInt("action");
 
-        if (commands.length() == 0) {
-            throw new APIInvalidTaskDetailsException(Errors.COMMANDS_NOT_FOUND.getMessage());
-        }
-
-        //Get the commands array
-        ArrayList<String> commandsArray = new ArrayList<String>();
-
-        for (int i = 0; i < commands.length(); i++) {
-            commandsArray.add(commands.getString(i));
-        }
-
+        //close the connection
         conn.disconnect();
 
-        return commandsArray;
+        //Search the action
+        for (ServerAction a : ServerAction.values()) {
+            //if the action is found, return it
+            if (a.getValue() == action) {
+                return a;
+            }
+        }
 
+        //if the action is not found, throw an exception
+        throw new APIInvalidTaskDetailsException(Errors.ACTION_NOT_FOUND.getMessage());
+
+    }
+
+    @Override
+    public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 
     @Override
@@ -104,29 +104,18 @@ public class RunCommandsJob extends Job {
         throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 
-    @Override
-    public Job setAction(ServerAction action) {
-        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
-    }
-
-
     /**
-     * Update the commands to be executed by the task
-     * @param commands list of commands to be executed by the task
-     * @throws APIUnauthorizedException if the API key is invalid
-     * @throws APINotFoundException if the server is not found
-     * @throws APIInvalidTaskDetailsException if the task is not found
-     * @throws IOException if there is an IO error (e.g. server is offline)
+     * The action to be performed on the server.
+     * @param action the action to be performed on the server.
+     * @throws APIUnauthorizedException If the API key is not valid.
+     * @throws APINotFoundException If the server is not found.
+     * @throws IOException If there is an IO error (e.g. server is offline).
+     * @throws APIInvalidTaskDetailsException If the task is not found.
      */
-    @Override
-    public Job setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
-
-        if (commands.length == 0) {
-            throw new APIInvalidTaskDetailsException(Errors.COMMANDS_NOT_GIVEN.getMessage());
-        }
+    public Job setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TaskID}", TaskID));
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -139,28 +128,22 @@ public class RunCommandsJob extends Job {
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
 
-        //Create the json object
-        String json = "{\"job\" : {\"commands\" : [";
+        //create the json object to send
+        String json = "{\"job\" : {\"action\" : " + action.getValue() + "}}";
 
-        for (int i = 0; i < commands.length; i++) {
-            json += "\"" + commands[i] + "\"";
-            if (i != commands.length - 1) {
-                json += ",";
-            }
-        }
+        //set the output stream to the json object
+        conn.setDoOutput(true);
 
-        json += "]}}";
-
-        //Connect to the server
+        //connect to the server
         conn.connect();
 
-        //Send the json object
+        //write the json object to the output stream
         conn.getOutputStream().write(json.getBytes());
 
-        //Get the response code
+        //get the response code
         int responseCode = conn.getResponseCode();
 
-        //If the response code indicates an error, throw the appropriate exception
+        //if the response code indicates an error, throw the appropriate exception
         switch (responseCode) {
             case 200:
                 break;
@@ -173,11 +156,20 @@ public class RunCommandsJob extends Job {
             default:
                 throw new APINotFoundException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
+
+        //close the connection
+        conn.disconnect();
         return this;
+    }
+
+    @Override
+    public Job setCommands(String... commands) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+        throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
 
     @Override
     public Job setBackupGUID(String backupGUID) {
         throw new UnsupportedOperationException(Errors.METHOD_NOT_SUPPORTED.getMessage());
     }
+
 }

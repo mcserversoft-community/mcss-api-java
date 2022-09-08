@@ -1,8 +1,8 @@
-package dev.le_app;
+package dev.le_app.mcss_api_java;
 
-import dev.le_app.exceptions.APIInvalidTaskDetailsException;
-import dev.le_app.exceptions.APINotFoundException;
-import dev.le_app.exceptions.APIUnauthorizedException;
+import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
+import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 
 import java.io.IOException;
 import java.util.ArrayList;

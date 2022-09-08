@@ -1,4 +1,4 @@
-package dev.le_app;
+package dev.le_app.mcss_api_java;
 
 public enum TaskType {
 

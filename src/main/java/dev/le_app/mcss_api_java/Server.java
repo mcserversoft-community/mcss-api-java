@@ -1,7 +1,7 @@
-package dev.le_app;
+package dev.le_app.mcss_api_java;
 
-import dev.le_app.exceptions.APIUnauthorizedException;
-import dev.le_app.exceptions.APINotFoundException;
+import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
+import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.Buffer;
 import java.time.LocalDateTime;
 
 public class Server {

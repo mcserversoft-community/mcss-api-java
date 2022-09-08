@@ -1,8 +1,8 @@
-package dev.le_app;
+package dev.le_app.mcss_api_java;
 
-import dev.le_app.exceptions.APIInvalidTaskDetailsException;
-import dev.le_app.exceptions.APINotFoundException;
-import dev.le_app.exceptions.APIUnauthorizedException;
+import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
+import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -85,11 +85,11 @@ public class Task {
         JSONObject jobJson = json.getJSONObject("job");
 
         if (jobJson.has("action")) {
-            return dev.le_app.TaskJobType.SERVER_ACTION;
+            return dev.le_app.mcss_api_java.TaskJobType.SERVER_ACTION;
         } else if (jobJson.has("commands")) {
-            return dev.le_app.TaskJobType.RUN_COMMANDS;
+            return dev.le_app.mcss_api_java.TaskJobType.RUN_COMMANDS;
         } else if (jobJson.has("backupIdentifier")) {
-            return dev.le_app.TaskJobType.START_BACKUP;
+            return dev.le_app.mcss_api_java.TaskJobType.START_BACKUP;
         } else {
             throw new APIInvalidTaskDetailsException(Errors.INVALID_JOB_TYPE.getMessage());
         }
@@ -139,11 +139,11 @@ public class Task {
         //parse the task type from the JSONObject "timing"
         JSONObject timing = json.getJSONObject("timing");
         if (timing.has("time")) {
-            return dev.le_app.TaskType.FIXED_TIME;
+            return dev.le_app.mcss_api_java.TaskType.FIXED_TIME;
         } else if (timing.has("interval")) {
-            return dev.le_app.TaskType.INTERVAL;
+            return dev.le_app.mcss_api_java.TaskType.INTERVAL;
         } else if (timing.has("timeless")) {
-            return dev.le_app.TaskType.TIMELESS;
+            return dev.le_app.mcss_api_java.TaskType.TIMELESS;
         } else {
             throw new APIInvalidTaskDetailsException(Errors.NO_TIMING_INFORMATION.getMessage());
         }
@@ -186,7 +186,7 @@ public class Task {
      * @throws IOException if there is an error connecting to the server
      */
     public boolean isRepeating() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
-        if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
@@ -247,9 +247,9 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the task has no timing information, or if the task has an invalid timing information
      */
     public LocalTime getTime() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
-        if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.INTERVAL) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         } else if (Deleted) {
             throw new APINotFoundException(Errors.TIME_DELETED.getMessage());
@@ -322,9 +322,9 @@ public class Task {
     public long getInterval() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         //Check if the task has an interval
-        if (TaskType == dev.le_app.TaskType.FIXED_TIME) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APINotFoundException(Errors.INTERVAL_DELETED.getMessage());
@@ -378,11 +378,11 @@ public class Task {
         if (Deleted) {
             throw new APINotFoundException(Errors.JOB_DELETED.getMessage());
         }
-        if (TaskJobType == dev.le_app.TaskJobType.SERVER_ACTION) {
+        if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.SERVER_ACTION) {
             return new ServerActionJob(api, GUID, TaskID);
-        } else if (TaskJobType == dev.le_app.TaskJobType.RUN_COMMANDS) {
+        } else if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.RUN_COMMANDS) {
             return new RunCommandsJob(api, GUID, TaskID);
-        } else if (TaskJobType == dev.le_app.TaskJobType.START_BACKUP) {
+        } else if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.START_BACKUP) {
             return new BackupJob(api, GUID, TaskID);
         } else {
             throw new APINotFoundException(Errors.INVALID_JOB_TYPE.getMessage());
@@ -405,7 +405,7 @@ public class Task {
      */
     public void setEnabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
 
-        if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_DELETED.getMessage());
@@ -467,7 +467,7 @@ public class Task {
      */
     public void setDisabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
 
-        if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_DELETED.getMessage());
@@ -528,9 +528,9 @@ public class Task {
     public void setInterval(long newInterval) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
         //Check if the task has the interval value and that it's not deleted
-        if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.FIXED_TIME) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_DELETED.getMessage());
@@ -594,9 +594,9 @@ public class Task {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_DELETED.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.INTERVAL) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         }
 
@@ -701,7 +701,7 @@ public class Task {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
-        } else if (TaskType == dev.le_app.TaskType.TIMELESS) {
+        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         }
 
