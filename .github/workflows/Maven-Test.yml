@@ -22,7 +22,8 @@ jobs:
       - run: |
           wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
           7z e ./mcss.7z
-          sudo chmod +x ./GithubWorkflowsTest/mcss.exe
+          ls
+          sudo chmod +x GithubWorkflowsTest/mcss.exe
           sudo apt update
           sudo apt install screen
         shell: bash
@@ -37,7 +38,7 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
       - run: |
-          sudo screen -d -m ./GithubWorkflowsTest/mcss.exe --no-ui
+          sudo screen -d -m GithubWorkflowsTest/mcss.exe --no-ui
           sleep 30
           mvn --batch-mode --update-snapshots package
         shell: bash
