@@ -11,6 +11,7 @@ jobs:
         env:
           MCSS_API_TOKEN: ${{ secrets.MCSS_API_TOKEN }}
           MCSS_API_IP: ${{ secrets.MCSS_API_IP }}
+        run: echo Ready to run tests
       
       - download-mcss:
         - run: |
