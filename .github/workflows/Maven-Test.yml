@@ -13,25 +13,27 @@ jobs:
           MCSS_API_IP: ${{ secrets.MCSS_API_IP }}
         run: echo Ready to run tests
       
-      - download-mcss:
-        - run: |
-            wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
-            unzip mcss.7z
-            chmod +x ./GithubWorkflows/mcss.exe
-            sudo apt update
-            sudo apt install screen
+  download-mcss:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
+          unzip mcss.7z
+          chmod +x ./GithubWorkflows/mcss.exe
+          sudo apt update
+          sudo apt install screen
         shell: bash
   test:
     runs-on: ubuntu-latest
     needs: setup
     steps:
       - uses: actions/checkout@v2
-      - name: Run tests
-        uses: actions/setup-java@v3
+        name: Run tests
+      - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '11'
-        run: |
+      - run: |
           screen -d -m ./GithubWorkflows/mcss.exe --no-ui
           sleep 30
           mvn --batch-mode --update-snapshots package
