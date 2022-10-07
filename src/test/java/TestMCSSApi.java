@@ -6,6 +6,8 @@ import dev.le_app.mcss_api_java.exceptions.APIVersionMismatchException;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +37,7 @@ class TestMCSSApi {
     @Order(1)
     void testConnection() {
         try {
-            api = new MCSSApi(ip, token);
+            api = new MCSSApi(ip, token, true);
         } catch (IOException e) {
             e.printStackTrace();
             fail("Thorn IOException while testing connection");
@@ -45,6 +47,12 @@ class TestMCSSApi {
         } catch (APIVersionMismatchException e) {
             e.printStackTrace();
             fail("Thorn APIVersionMismatchException while testing connection");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            fail("Thorn NoSuchAlgorithmException while testing connection");
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+            fail("Thorn KeyManagementException while testing connection");
         }
         assertNotNull(api, "API is null");
     }
