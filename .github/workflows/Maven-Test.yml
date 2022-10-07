@@ -21,7 +21,7 @@ jobs:
     steps:
       - run: |
           wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
-          unzip mcss.7z
+          7z e ./mcss.7z
           chmod +x ./GithubWorkflows/mcss.exe
           sudo apt update
           sudo apt install screen
