@@ -17,6 +17,7 @@ jobs:
       
   download-mcss:
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - run: |
           wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
@@ -27,7 +28,7 @@ jobs:
         shell: bash
   test:
     runs-on: ubuntu-latest
-    needs: setup
+    needs: download-mcss
     steps:
       - uses: actions/checkout@v2
         name: Run tests
