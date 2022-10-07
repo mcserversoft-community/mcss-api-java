@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '11'
+          java-version: '17'
       - run: |
           sudo screen -d -m GithubWorkflowsTest/mcss.exe --no-ui
           sleep 30
