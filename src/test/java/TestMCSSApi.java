@@ -25,8 +25,8 @@ class TestMCSSApi {
     @BeforeAll
     static void setUp() {
         //Get the ip from the gradle build file
-        ip = System.getProperty("ip");
-        token = System.getProperty("token");
+        ip = System.getProperty("MCSS_API_IP");
+        token = System.getProperty("MCSS_API_TOKEN");
     }
 
     @Test
@@ -118,12 +118,34 @@ class TestMCSSApi {
         }
         assertNotNull(tasks, "Tasks is null");
         assertTrue(tasks.size() > 0, "Tasks is empty");
-        assertNotNull(tasks.get(0).getTaskID(), "Task ID is null");
+    }
+
+
+    @Test
+    @DisplayName("Test the task information")
+    @Order(6)
+    void testGetTaskInfo() {
+        try {
+            tasks.get(0).getInterval();
+            tasks.get(0).getTaskName();
+        } catch (APIUnauthorizedException e) {
+            e.printStackTrace();
+            fail("Thrown ApiUnauthorizedException while getting task info");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Thrown IOException while getting task info");
+        } catch (APINotFoundException e) {
+            e.printStackTrace();
+            fail("Thrown APINotFoundException while getting task info");
+        } catch (APIInvalidTaskDetailsException e) {
+            e.printStackTrace();
+            fail("Thrown APIInvalidTaskDetailsException while getting task info");
+        }
     }
 
     @Test
-    @DisplayName("Test the get tasks method")
-    @Order(6)
+    @DisplayName("Test the get Job method")
+    @Order(7)
     void testGetJob() {
         try {
             job = tasks.get(0).getJob();
@@ -136,18 +158,8 @@ class TestMCSSApi {
             if (job instanceof RunCommandsJob) {
                 assertNotNull(job.getCommands(), "Commands is null");
                 assertTrue(job.getCommands().size() > 0, "Commands is empty");
-            } else if (job instanceof BackupJob) {
-                assertNotNull(job.getBackupGUID(), "Backup GUID is null");
-                assertFalse(job.getBackupGUID().isEmpty(), "Backup GUID is empty");
-            } else if (job instanceof ServerActionJob) {
-                assertNotNull(job.getAction(), "Action is null");
-                ServerAction action = job.getAction();
-                for (ServerAction serverAction : ServerAction.values()) {
-                    if (serverAction == action) {
-                        return;
-                    }
-                }
-                fail("Action is not a valid ServerAction");
+            } else {
+                fail("Job is not the expected type");
             }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
@@ -165,7 +177,7 @@ class TestMCSSApi {
     }
 
 
-    @AfterEach
+    @AfterAll
     void tearDown() {
         api = null;
         info = null;
