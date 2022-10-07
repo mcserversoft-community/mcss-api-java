@@ -21,7 +21,7 @@ jobs:
     steps:
       - run: |
           wget -O mcss.7z "${{ secrets.MCSS_DOWNLOAD_LINK }}"
-          7z e ./mcss.7z
+          7z x ./mcss.7z
           ls
           sudo chmod +x GithubWorkflowsTest/mcss.exe
           sudo apt update
