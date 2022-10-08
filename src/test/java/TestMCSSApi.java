@@ -31,7 +31,7 @@ class TestMCSSApi {
         //Get the ip from environment variable
         ip = System.getenv("MCSS_API_IP");
         //Get the token from environment variable
-        token = System.getenv("MCSS_API_KEY");
+        token = System.getenv("MCSS_API_TOKEN");
     }
 
     @Test
