@@ -15,7 +15,7 @@ jobs:
           ls
           sudo chmod +x GithubWorkflowsTest/mcss.exe
           sudo apt update
-          sudo apt install screen
+          sudo apt install -y screen
         shell: bash
   test:
     runs-on: ubuntu-latest
@@ -28,8 +28,10 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
       - run: |
+          sudo apt-get install -y dotnet6
           sudo screen -d -m GithubWorkflowsTest/mcss.exe --no-ui
-          sleep 30
+          sleep 35
+          sudo screen -ls
           mvn --batch-mode --update-snapshots package
         shell: bash
         env:
