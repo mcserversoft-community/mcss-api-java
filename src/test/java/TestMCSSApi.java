@@ -28,9 +28,10 @@ class TestMCSSApi {
 
     @BeforeAll
     static void setUp() {
-        //Get the ip from the gradle build file
-        ip = System.getProperty("MCSS_API_IP");
-        token = System.getProperty("MCSS_API_TOKEN");
+        //Get the ip from environment variable
+        ip = System.getenv("MCSS_API_IP");
+        //Get the token from environment variable
+        token = System.getenv("MCSS_API_KEY");
     }
 
     @Test
