@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +38,9 @@ class TestMCSSApi {
     @Order(1)
     void testConnection() {
         try {
-            api = new MCSSApi(ip, token, true);
+            System.out.println("IP: " + ip);
+            System.out.println("Is token null/empty: " + (token == null || token.isEmpty()));
+            api = new MCSSApi(Objects.requireNonNullElse(ip, "127.0.0.1:25560"), token, true);
         } catch (IOException e) {
             e.printStackTrace();
             fail("Thorn IOException while testing connection");
