@@ -29,7 +29,7 @@ jobs:
           java-version: '17'
       - run: |
           sudo screen -d -m GithubWorkflowsTest/mcss.exe --no-ui
-          sleep 15
+          sleep 30
           mvn --batch-mode --update-snapshots package
         shell: bash
         env:
