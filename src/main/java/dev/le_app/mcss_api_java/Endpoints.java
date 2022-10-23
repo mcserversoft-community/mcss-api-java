@@ -9,6 +9,8 @@ public enum Endpoints {
     EXECUTE_SERVER_ACTION("https://{IP}/api/v1/servers/{SERVER_ID}/execute/action"),
     EXECUTE_SERVER_COMMAND("https://{IP}/api/v1/servers/{SERVER_ID}/execute/command"),
     EXECUTE_SERVER_COMMANDS("https://{IP}/api/v1/servers/{SERVER_ID}/execute/commands"),
+    SERVER_BACKUPS("https://{IP}/api/v1/servers/{SERVER_ID}/backups"),
+    SERVER_BACKUP_DETAILS("https://{IP}/api/v1/servers/{SERVER_ID}/backups/{BACKUP_ID}"),
     GET_STATS("https://{IP}/api/v1/servers/{SERVER_ID}/stats"),
     GET_ICON("https://{IP}/api/v1/servers/{SERVER_ID}/icon"),
     GET_CONSOLE("https://{IP}/api/v1/servers/{SERVER_ID}/console?AmountOfLines={AMOUNT_OF_LINES}"),
