@@ -7,6 +7,7 @@ public enum Errors {
     NOT_FOUND("TaskID / ServerID invalid. (ERR_404)"),
     VERSION_MISMATCH("API version mismatch. Expected version: {VERSION}, got {GOT}"),
     NOT_RECOGNIZED("Error code not recognized. (ERR_UNKNOWN): "),
+    NO_SERVER_ACCESS("You do not have access to this server. (ERR_403)"),
 
     ID_FILTER_ERROR("The serverTypeID is only required if the filter is set to FILTER"),
 
