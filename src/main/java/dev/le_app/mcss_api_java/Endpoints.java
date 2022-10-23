@@ -3,6 +3,7 @@ package dev.le_app.mcss_api_java;
 public enum Endpoints {
     ROOT("https://{IP}/api/v1"),
     SERVERS("https://{IP}/api/v1/servers"),
+    SERVER_DETAILS("https://{IP}/api/v1/servers/{SERVER_ID}"),
     SERVER_COUNT("https://{IP}/api/v1/servers/count"),
     SERVER_COUNT_FILTER("https://{IP}/api/v1/servers/count?filter={FILTER}"),
     SERVER_COUNT_FILTER_SRVTYPE("https://{IP}/api/v1/servers/count?filter={FILTER}&serverTypeID={SRVTYPE}"),
