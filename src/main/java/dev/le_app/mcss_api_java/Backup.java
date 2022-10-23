@@ -884,6 +884,7 @@ public class Backup {
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
         conn.setRequestProperty("ApiKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoInput(true);
         conn.setDoOutput(true);
 
@@ -910,6 +911,7 @@ public class Backup {
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
         conn.setRequestProperty("ApiKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoInput(true);
         conn.setDoOutput(true);
 
