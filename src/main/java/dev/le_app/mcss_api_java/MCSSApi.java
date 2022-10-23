@@ -25,7 +25,7 @@ public class MCSSApi {
     protected String IP = null;
     protected String token = null;
     protected String version = null;
-    protected String expectedVersion = "1.0.0";
+    protected String expectedVersion = "1.2.0";
 
     protected Boolean allowUnsafeSSL = false;
 
@@ -190,7 +190,7 @@ public class MCSSApi {
     }
 
     private void checkVersionMismatch() throws APIVersionMismatchException {
-        if (!Objects.equals(version, "1.0.0")) {
+        if (!Objects.equals(version, expectedVersion)) {
             throw new APIVersionMismatchException(Errors.VERSION_MISMATCH.getMessage().replace("{GOT}", version)
                     .replace("{EXPECTED_VERSION}", expectedVersion));
         }
