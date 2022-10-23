@@ -177,11 +177,7 @@ public class MCSSApi {
         for (int i = 0; i < serversArray.length(); i++) {
             JSONObject server = serversArray.getJSONObject(i);
             //Create the Server object with parsed values from JSON, and add it to the ArrayList
-            servers.add(new Server(server.getString("guid"), ServerStatus.findByVal(server.getInt("status")),
-                    server.getString("name"), server.getString("description"), server.getString("pathToFolder"),
-                    server.getString("folderName"),  LocalDateTime.parse(server.getString("creationDate"),formatter),
-                    server.getBoolean("isSetToAutostart"), KeepOnline.findByVal(server.getInt("keepOnline")), server.getInt("javaAllocatedMemory"),
-                    server.getString("javaStartupLine"), this));
+            servers.add(new Server(server.getString("guid"), this));
         }
 
         //return the ArrayList
