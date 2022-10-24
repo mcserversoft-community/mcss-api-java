@@ -1,6 +1,7 @@
 package dev.le_app.mcss_api_java;
 
 import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINoServerAccessException;
 import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
 import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import org.json.JSONObject;
@@ -18,34 +19,73 @@ public class Task {
 
     private final MCSSApi api;
     private final String GUID;
-    private final String TaskID;
-    private String TaskName;
-    private boolean Enabled;
-    private final TaskType TaskType;
+    private final String taskID;
+    private String taskName;
+    private boolean enabled;
+    private final TaskType taskType;
+    private PlayerRequirement playerRequirement;
 
-    private final TaskJobType TaskJobType;
+    private final TaskJobType taskJobType;
 
     private boolean Deleted = false;
 
 
     //Not passing timing information because not all tasks have it.
-    protected Task(MCSSApi api, String GUID, String TaskID, String TaskName, boolean Enabled) throws APIUnauthorizedException, IOException, APINotFoundException, APIInvalidTaskDetailsException {
+    protected Task(MCSSApi api, String GUID, String taskID, String taskName, boolean enabled) throws APIUnauthorizedException, IOException, APINotFoundException, APIInvalidTaskDetailsException, APINoServerAccessException {
         this.api = api;
         this.GUID = GUID;
-        this.TaskID = TaskID;
-        this.TaskName = TaskName;
-        this.Enabled = Enabled;
-        this.TaskType = figureOutTaskType();
-        this.TaskJobType = figureOutTaskJobType();
+        this.taskID = taskID;
+        this.taskName = taskName;
+        this.enabled = enabled;
+        this.taskType = figureOutTaskType();
+        this.taskJobType = figureOutTaskJobType();
+        this.playerRequirement = figureOutPlayerRequirement();
     }
 
-    private TaskJobType figureOutTaskJobType() throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+    private PlayerRequirement figureOutPlayerRequirement() throws APIUnauthorizedException, APINoServerAccessException, APINotFoundException, IOException {
+
+        //Create the URL
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint()
+                .replace("{IP}", api.IP)
+                .replace("{SERVER_ID}", GUID)
+                .replace("{TASK_ID}", taskID));
+
+        //Create the connection
+        HttpURLConnection conn = createGetConnection(url);
+
+        //Get the response code
+        int responseCode = conn.getResponseCode();
+
+        //Check for errors
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Get the response
+        JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
+        conn.disconnect();
+
+        //Get the player requirement
+        return PlayerRequirement.findByVal(response.getInt("playerRequirement"));
+
+    }
+
+    private TaskJobType figureOutTaskJobType() throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.TASK_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID).replace("{TASK_ID}", TaskID));
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID).replace("{TASK_ID}", taskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -71,6 +111,8 @@ public class Task {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             default:
                 throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -96,11 +138,11 @@ public class Task {
 
     }
 
-    private TaskType figureOutTaskType() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
+    private TaskType figureOutTaskType() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, APINoServerAccessException {
 
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -124,6 +166,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -153,28 +197,41 @@ public class Task {
      * @return the Task ID
      */
     public String getTaskID() {
-        return TaskID;
+        return taskID;
     }
 
     /**
      * @return the Task Name
      */
     public String getTaskName() {
-        return TaskName;
+        return taskName;
     }
 
     /**
      * @return the Task Type
      */
     public TaskType getTaskType() {
-        return TaskType;
+        return taskType;
     }
 
     /**
-     * @return the Enabled status of the Task
+     * @return the Task Job Type
+     */
+    public TaskJobType getTaskJobType() {
+        return taskJobType;
+    }
+
+    /**
+     * @return the Task Player Requirement
+     */
+    public PlayerRequirement getPlayerRequirement() {
+        return playerRequirement;
+    }
+    /**
+     * @return the enabled status of the Task
      */
     public boolean isEnabled() {
-        return Enabled;
+        return enabled;
     }
 
     /**
@@ -185,8 +242,8 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the task has no timing information
      * @throws IOException if there is an error connecting to the server
      */
-    public boolean isRepeating() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+    public boolean isRepeating() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException, APINoServerAccessException {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
@@ -194,17 +251,10 @@ public class Task {
 
         //Create URL
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         //connect to the server
         conn.connect();
@@ -218,6 +268,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -246,27 +298,20 @@ public class Task {
      * @throws APINotFoundException if the server or task is not found
      * @throws APIInvalidTaskDetailsException if the task has no timing information, or if the task has an invalid timing information
      */
-    public LocalTime getTime() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException {
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+    public LocalTime getTime() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, APINoServerAccessException {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         } else if (Deleted) {
             throw new APINotFoundException(Errors.TIME_DELETED.getMessage());
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         //connect to the server
         conn.connect();
@@ -280,6 +325,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -319,12 +366,12 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the task has no interval information, or if the task has an invalid interval information
      * @throws IOException if there is an error connecting to the server
      */
-    public long getInterval() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public long getInterval() throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException, APINoServerAccessException {
 
         //Check if the task has an interval
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APINotFoundException(Errors.INTERVAL_DELETED.getMessage());
@@ -332,17 +379,10 @@ public class Task {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         //connect to the server
         conn.connect();
@@ -356,6 +396,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -378,12 +420,12 @@ public class Task {
         if (Deleted) {
             throw new APINotFoundException(Errors.JOB_DELETED.getMessage());
         }
-        if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.SERVER_ACTION) {
-            return new ServerActionJob(api, GUID, TaskID);
-        } else if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.RUN_COMMANDS) {
-            return new RunCommandsJob(api, GUID, TaskID);
-        } else if (TaskJobType == dev.le_app.mcss_api_java.TaskJobType.START_BACKUP) {
-            return new BackupJob(api, GUID, TaskID);
+        if (taskJobType == dev.le_app.mcss_api_java.TaskJobType.SERVER_ACTION) {
+            return new ServerActionJob(api, GUID, taskID);
+        } else if (taskJobType == dev.le_app.mcss_api_java.TaskJobType.RUN_COMMANDS) {
+            return new RunCommandsJob(api, GUID, taskID);
+        } else if (taskJobType == dev.le_app.mcss_api_java.TaskJobType.START_BACKUP) {
+            return new BackupJob(api, GUID, taskID);
         } else {
             throw new APINotFoundException(Errors.INVALID_JOB_TYPE.getMessage());
         }
@@ -403,27 +445,19 @@ public class Task {
      * @throws APIUnauthorizedException if the server returns a 401 response code
      * @throws APIInvalidTaskDetailsException if the server returns a 409 response code
      */
-    public void setEnabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+    public void setEnabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException, APINoServerAccessException {
 
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_DELETED.getMessage());
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
 
         String json = "{\"enabled\":true}";
@@ -443,6 +477,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -451,7 +487,7 @@ public class Task {
                 throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        Enabled = true;
+        enabled = true;
 
         //close connection
         conn.disconnect();
@@ -465,26 +501,18 @@ public class Task {
      * @throws APIUnauthorizedException if the server returns a 401 response code
      * @throws APIInvalidTaskDetailsException if the server returns a 409 response code
      */
-    public void setDisabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+    public void setDisabled() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException, APINoServerAccessException {
 
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_TIMELESS.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_DELETED.getMessage());
         }
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
         String json = "{\"enabled\":false}";
 
@@ -503,6 +531,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -511,7 +541,7 @@ public class Task {
                 throw new APIInvalidTaskDetailsException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        Enabled = false;
+        enabled = false;
 
         //close connection
         conn.disconnect();
@@ -525,12 +555,12 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the task has no interval information, or if the task has an invalid interval information
      * @throws IOException if there is an error connecting to the server
      */
-    public void setInterval(long newInterval) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public void setInterval(long newInterval) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException, APINoServerAccessException {
 
         //Check if the task has the interval value and that it's not deleted
-        if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.FIXED_TIME) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_FIXED_TIME.getMessage());
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.INTERVAL_DELETED.getMessage());
@@ -543,18 +573,10 @@ public class Task {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //Create the connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //Set the request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
         //Create the JSON
         String json = """
@@ -578,6 +600,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -590,30 +614,22 @@ public class Task {
         conn.disconnect();
     }
 
-    public void setTime(LocalTime newTime) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public void setTime(LocalTime newTime) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_DELETED.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_TIMELESS.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.INTERVAL) {
             throw new APIInvalidTaskDetailsException(Errors.TIME_INTERVAL.getMessage());
         }
 
         //Create URL
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //Create connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //Set request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
         //Create JSON with the newTime
         String json = "{\"timing\":{\"time\":\"" + newTime.toString() + "\"}}";
@@ -633,6 +649,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -651,23 +669,17 @@ public class Task {
      * @throws APINotFoundException if the server returns a 404 response code
      * @throws APIUnauthorizedException if the server returns a 401 response code
      */
-    public void runTask() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException {
+    public void runTask() throws IOException, APINotFoundException, APIUnauthorizedException, APIInvalidTaskDetailsException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.RUN_DELETED.getMessage());
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("POST");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
+        HttpURLConnection conn = createPostConnection(url);
 
         //connect to the server
         conn.connect();
@@ -680,6 +692,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -697,27 +711,19 @@ public class Task {
      * @throws APIInvalidTaskDetailsException if the task has no repeat information, or if the task has an invalid repeat information
      * @throws IOException if there is an error connecting to the server
      */
-    public void setRepeating(boolean repeat) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
+    public void setRepeating(boolean repeat) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_DELETED.getMessage());
-        } else if (TaskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
+        } else if (taskType == dev.le_app.mcss_api_java.TaskType.TIMELESS) {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
         //connect to the server
         conn.connect();
@@ -737,6 +743,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -757,7 +765,7 @@ public class Task {
      * @throws APINotFoundException if the server returns a 404 response code
      * @throws IOException if there is an error connecting to the server
      */
-    public void changeName(String newName) throws APIInvalidTaskDetailsException, APIUnauthorizedException, APINotFoundException, IOException {
+    public void changeName(String newName) throws APIInvalidTaskDetailsException, APIUnauthorizedException, APINotFoundException, IOException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.CHANGE_NAME_DELETED.getMessage());
@@ -772,18 +780,10 @@ public class Task {
 
         //Create URL
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //Create connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //Set request method and request properties
-        conn.setRequestMethod("PUT");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPutConnection(url);
 
         //Create JSON
         String json = "{\"name\":\"" + newName + "\"}";
@@ -803,6 +803,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             case 409:
@@ -814,8 +816,50 @@ public class Task {
         //Close connection
         conn.disconnect();
 
-        TaskName = newName;
+        taskName = newName;
 
+    }
+
+    public void setPlayerRequirement(PlayerRequirement playerRequirement) throws APIUnauthorizedException, APINotFoundException, APINoServerAccessException, APIInvalidTaskDetailsException, IOException {
+        //Create the URL
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+                .replace("{TASK_ID}", taskID));
+
+        //Create connection
+        HttpURLConnection conn = createPutConnection(url);
+
+        //Create JSON - field name is playerRequirement - value is INTEGER
+        String json = "{\"playerRequirement\":\"" + playerRequirement.getValue() + "\"}";
+
+        //Connect to server
+        conn.connect();
+
+        //Write JSON to output stream
+        conn.getOutputStream().write(json.getBytes());
+
+        //Get response code
+        int responseCode = conn.getResponseCode();
+
+        //If response code indicates an error, throw the appropriate exception
+        switch (responseCode) {
+            case 200:
+                break;
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 409:
+                throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        //Close connection
+        conn.disconnect();
+
+        this.playerRequirement = playerRequirement;
     }
 
 
@@ -826,14 +870,14 @@ public class Task {
      * @throws APINotFoundException if the server returns a 404 response code
      * @throws APIUnauthorizedException if the server returns a 401 response code
      */
-    public void deleteTask() throws IOException, APINotFoundException, APIUnauthorizedException {
+    public void deleteTask() throws IOException, APINotFoundException, APIUnauthorizedException, APINoServerAccessException {
 
         if (Deleted) {
             throw new APINotFoundException(Errors.TASK_ALREADY_DELETED.getMessage());
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", TaskID));
+                .replace("{TASK_ID}", taskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -855,6 +899,8 @@ public class Task {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -866,4 +912,57 @@ public class Task {
         conn.disconnect();
     }
 
+    private HttpURLConnection createGetConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
+
+        return conn;
+    }
+
+    private HttpURLConnection createPostConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        return conn;
+    }
+
+    private HttpURLConnection createPutConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("PUT");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+
+        return conn;
+    }
+
+    private HttpURLConnection createDeleteConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        //set the request method and request properties
+        conn.setRequestMethod("DELETE");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", api.token);
+        conn.setDoOutput(true);
+
+        return conn;
+    }
 }

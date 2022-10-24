@@ -15,4 +15,13 @@ public enum PlayerRequirement {
         return value;
     }
 
+    public static PlayerRequirement findByVal(Integer abbr){
+        for(PlayerRequirement v : values()){
+            if( v.getValue() == abbr ){
+                return v;
+            }
+        }
+        throw new IllegalArgumentException("No PlayerRequirement with value " + abbr);
+    }
+
 }
