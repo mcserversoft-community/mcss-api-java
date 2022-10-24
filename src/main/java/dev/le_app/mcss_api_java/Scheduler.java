@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Scheduler of a server
+ * Used to create and manage tasks
+ */
 public class Scheduler {
 
     private final MCSSApi api;

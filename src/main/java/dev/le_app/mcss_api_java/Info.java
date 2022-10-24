@@ -1,6 +1,8 @@
 package dev.le_app.mcss_api_java;
 
-
+/**
+ * The information about the API.
+ */
 public class Info {
 
     private boolean isDev = false;
@@ -46,6 +48,9 @@ public class Info {
         return UniqueID;
     }
 
+    /**
+     * @return the youAreAwesome
+     */
     public boolean getYouAreAwesome() {
         return youAreAwesome;
     }

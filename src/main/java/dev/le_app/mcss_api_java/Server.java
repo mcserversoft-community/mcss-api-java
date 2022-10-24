@@ -21,6 +21,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+/**
+ * Represents a server.
+ */
 public class Server {
 
     private final String GUID;
@@ -106,6 +109,9 @@ public class Server {
         return isSetToAutostart;
     }
 
+    /**
+     * @return whether the server is forced to /save-all before shutdown
+     */
     public boolean getForceSaveOnStop() {
         return forceSaveOnStop;
     }
@@ -138,6 +144,14 @@ public class Server {
         return new Scheduler(api, GUID);
     }
 
+    /**
+     * Get a list of backups for this server
+     * @return an arraylist of backups
+     * @throws APIUnauthorizedException if the API token is invalid or expired.
+     * @throws APINoServerAccessException if you do not have access to this server.
+     * @throws APINotFoundException if the serverID is invalid.
+     * @throws IOException if an error occurs while connecting to the API.
+     */
     public ArrayList<Backup> getBackups() throws APIUnauthorizedException, APINoServerAccessException, APINotFoundException, IOException {
 
         //Create the URL

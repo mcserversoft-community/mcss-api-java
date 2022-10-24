@@ -1,5 +1,6 @@
 package dev.le_app.mcss_api_java;
 
+import dev.le_app.mcss_api_java.exceptions.APINoServerAccessException;
 import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
 import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import dev.le_app.mcss_api_java.exceptions.APIVersionMismatchException;
@@ -20,6 +21,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * The main class of the API.
+ */
 public class MCSSApi {
 
     protected String IP = null;
@@ -54,6 +58,8 @@ public class MCSSApi {
      * @throws APIUnauthorizedException If the token is invalid
      * @throws APIVersionMismatchException If the API version is not the same as the expected version
      * @throws IOException If there is an error while connecting to the API
+     * @throws KeyManagementException If there is an error with the KeyManagment
+     * @throws NoSuchAlgorithmException If there is an error with the SSLContext
      */
     public MCSSApi(String IP, String token, Boolean allowUnsafeSSL) throws APIUnauthorizedException, APIVersionMismatchException, IOException, NoSuchAlgorithmException, KeyManagementException {
         this.IP = IP;
@@ -133,7 +139,15 @@ public class MCSSApi {
                 json.getBoolean("youAreAwesome"));
     }
 
-    public ArrayList<Server> getServers() throws APIUnauthorizedException, APINotFoundException, IOException {
+    /**
+     * Get the list of servers
+     * @return ArrayList of servers
+     * @throws APIUnauthorizedException API token is invalid/expired
+     * @throws APINotFoundException API not found
+     * @throws IOException General IO error
+     * @throws APINoServerAccessException API does not have access to any server
+     */
+    public ArrayList<Server> getServers() throws APIUnauthorizedException, APINotFoundException, IOException, APINoServerAccessException {
 
         //create the ArrayList
         ArrayList<Server> servers = new ArrayList<>();
@@ -160,6 +174,8 @@ public class MCSSApi {
         } else if (responseCode == 404) {
             //Might never fire, better safe than sorry
             throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+        } else if (responseCode == 403) {
+            throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
         }
 
         //save the response in a JSONObject

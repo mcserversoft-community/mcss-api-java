@@ -12,6 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * Represents a backup job.
+ */
 public class BackupJob extends Job {
 
     private final MCSSApi api;
@@ -19,6 +22,12 @@ public class BackupJob extends Job {
     private final String TaskID;
 
 
+    /**
+     * Constructs a new BackupJob.
+     * @param api instance of MCSSApi
+     * @param GUID GUID of the backup job
+     * @param TaskID TaskID of the backup job
+     */
     public BackupJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;

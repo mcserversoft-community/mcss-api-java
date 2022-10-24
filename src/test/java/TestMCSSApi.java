@@ -1,8 +1,5 @@
 import dev.le_app.mcss_api_java.*;
-import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
-import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
-import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
-import dev.le_app.mcss_api_java.exceptions.APIVersionMismatchException;
+import dev.le_app.mcss_api_java.exceptions.*;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -94,6 +91,9 @@ class TestMCSSApi {
         } catch (APINotFoundException e) {
             e.printStackTrace();
             fail("Thrown APINotFoundException while getting servers");
+        } catch (APINoServerAccessException e) {
+            e.printStackTrace();
+            fail("Thrown APINoServerAccessException while getting servers");
         }
         assertNotNull(servers, "Servers is null");
         assertTrue(servers.size() > 0, "Servers is empty");
@@ -128,6 +128,9 @@ class TestMCSSApi {
         } catch (APIInvalidTaskDetailsException e) {
             e.printStackTrace();
             fail("Thrown APIInvalidTaskDetailsException while getting tasks");
+        } catch (APINoServerAccessException e) {
+            e.printStackTrace();
+            fail("Thrown APINoServerAccessException while getting tasks");
         }
         assertNotNull(tasks, "Tasks is null");
         assertTrue(tasks.size() > 0, "Tasks is empty");
@@ -153,6 +156,9 @@ class TestMCSSApi {
         } catch (APIInvalidTaskDetailsException e) {
             e.printStackTrace();
             fail("Thrown APIInvalidTaskDetailsException while getting task info");
+        } catch (APINoServerAccessException e) {
+            e.printStackTrace();
+            fail("Thrown APINoServerAccessException while getting task info");
         }
     }
 

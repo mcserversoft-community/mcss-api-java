@@ -13,12 +13,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * Represents a job.
+ */
 public class RunCommandsJob extends Job {
 
     private MCSSApi api;
     private String GUID;
     private String TaskID;
 
+    /**
+     * Create a new job.
+     * @param api The API instance.
+     * @param GUID The GUID of the server.
+     * @param TaskID The ID of the task.
+     */
     public RunCommandsJob(MCSSApi api, String GUID, String TaskID) {
         this.api = api;
         this.GUID = GUID;

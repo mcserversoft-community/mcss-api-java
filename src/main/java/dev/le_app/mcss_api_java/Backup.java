@@ -19,6 +19,9 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+/**
+ * This class contains information about a server's backup
+ */
 public class Backup {
 
     //BACKUP CLASS
@@ -919,6 +922,13 @@ public class Backup {
     }
 
 
+    /**
+     * Delete the backup - NOTE: This won't delete the backup files, just the backup information in MCSS
+     * @throws APIUnauthorizedException If the API key is invalid
+     * @throws APINotFoundException If the server or backup does not exist
+     * @throws APINoServerAccessException If the API key does not have access to the server
+     * @throws IOException If there is an error connecting to the API
+     */
     public void deleteBackup() throws APIUnauthorizedException, APINotFoundException, APINoServerAccessException, IOException {
         if (deleted) {
             throw new IllegalStateException("Backup has already been deleted");
@@ -947,6 +957,13 @@ public class Backup {
         }
     }
 
+    /**
+     * Manually run a backup
+     * @throws APIUnauthorizedException If the API key is invalid
+     * @throws APINotFoundException If the server or backup does not exist
+     * @throws APINoServerAccessException If the API key does not have access to the server
+     * @throws IOException If there is an error connecting to the API
+     */
     public void runBackup() throws APIUnauthorizedException, APINotFoundException, APINoServerAccessException, IOException {
         if (deleted) {
             throw new IllegalStateException("Backup has already been deleted");
