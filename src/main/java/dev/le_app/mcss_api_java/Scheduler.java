@@ -1,6 +1,7 @@
 package dev.le_app.mcss_api_java;
 
 import dev.le_app.mcss_api_java.exceptions.APIInvalidTaskDetailsException;
+import dev.le_app.mcss_api_java.exceptions.APINoServerAccessException;
 import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
 import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import org.json.JSONArray;
@@ -34,8 +35,9 @@ public class Scheduler {
      * @throws APIUnauthorizedException if the API key is invalid
      * @throws APINotFoundException if the server is not found
      * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public int getTotalTaskAmount() throws APIUnauthorizedException, APINotFoundException, IOException {
+    public int getTotalTaskAmount() throws APIUnauthorizedException, APINotFoundException, IOException, APINoServerAccessException {
 
         //GET /api/v1/servers/{SERVER_ID}/scheduler/
         URL url = new URL(Endpoints.GET_SCHEDULER.getEndpoint().replace("{IP}", api.IP)
@@ -63,6 +65,8 @@ public class Scheduler {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -87,8 +91,9 @@ public class Scheduler {
      * @throws APIUnauthorizedException if the API key is invalid
      * @throws APINotFoundException if the server is not found
      * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public int getTotalTaskAmount(TaskType filter) throws APIUnauthorizedException, APINotFoundException, IOException {
+    public int getTotalTaskAmount(TaskType filter) throws APIUnauthorizedException, APINotFoundException, IOException, APINoServerAccessException {
 
         //GET /api/v1/servers/{SERVER_ID}/scheduler/
         URL url = new URL(Endpoints.GET_SCHEDULER.getEndpoint().replace("{IP}", api.IP)
@@ -118,6 +123,8 @@ public class Scheduler {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -140,8 +147,9 @@ public class Scheduler {
      * @throws APINotFoundException if the server is not found
      * @throws IOException if there is an IO error (e.g. server is offline)
      * @throws APIInvalidTaskDetailsException if the task details are invalid
+     * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public ArrayList<Task> getTasks() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
+    public ArrayList<Task> getTasks() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException, APINoServerAccessException {
         //GET /api/v1/servers/{SERVER_ID}/scheduler/
         URL url = new URL(Endpoints.GET_TASK_LIST.getEndpoint().replace("{IP}", api.IP)
                 .replace("{SERVER_ID}", GUID));
@@ -168,6 +176,8 @@ public class Scheduler {
                 break;
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -191,7 +201,23 @@ public class Scheduler {
         return tasks;
     }
 
-    public Task createTimelessTask(String Name, Boolean Enabled, Boolean repeating, int interval, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+    /**
+     * Create a new Interval Task
+     * @param Name Name of the task to create
+     * @param Enabled Whether the task should be enabled or not
+     * @param repeating Whether the task should repeat or not
+     * @param interval The interval between each task
+     * @param job The job to run
+     * @return The created task
+     * @throws APIInvalidTaskDetailsException if the task details are invalid
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APINotFoundException if the server is not found
+     * @throws APINoServerAccessException if the API key does not have access to the server
+     */
+    public Task createIntervalTask(String Name, Boolean Enabled, Boolean repeating, int interval, Job job)
+            throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException,
+            APINotFoundException, APINoServerAccessException {
 
 
         //Check if the name contains special characters
@@ -264,6 +290,8 @@ public class Scheduler {
                 throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -277,7 +305,21 @@ public class Scheduler {
         return new Task(api, GUID, taskGUID, Name, Enabled);
     }
 
-    public Task createFixedTimeTask(String Name, Boolean Enabled, Boolean repeating, LocalTime time, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+    /**
+     * Create a new Fixed Time task
+     * @param Name Name of the task to create
+     * @param Enabled Whether the task should be enabled or not
+     * @param repeating Whether the task should repeat or not
+     * @param time The time to run the task
+     * @param job The job to run
+     * @return The created task
+     * @throws APIInvalidTaskDetailsException if the task details are invalid
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APINotFoundException if the server is not found
+     * @throws APINoServerAccessException if the API key does not have access to the server
+     */
+    public Task createFixedTimeTask(String Name, Boolean Enabled, Boolean repeating, LocalTime time, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
 
         //Check if the name contains special characters
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
@@ -349,6 +391,8 @@ public class Scheduler {
                 throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
@@ -362,7 +406,19 @@ public class Scheduler {
         return new Task(api, GUID, taskGUID, Name, Enabled);
     }
 
-    public Task createIntervalTask(String Name, Boolean Enabled, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException {
+    /**
+     * Create a new Interval Task
+     * @param Name Name of the task to create
+     * @param Enabled Whether the task should be enabled or not
+     * @param job The job to run
+     * @return The created task
+     * @throws APIInvalidTaskDetailsException if the task details are invalid
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws IOException if there is an IO error (e.g. server is offline)
+     * @throws APINotFoundException if the server is not found
+     * @throws APINoServerAccessException if the API key does not have access to the server
+     */
+    public Task createTimelessTask(String Name, Boolean Enabled, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
 
         //Check if the name contains special characters
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
@@ -430,6 +486,8 @@ public class Scheduler {
                 throw new APIInvalidTaskDetailsException(Errors.INVALID_TASK_DETAILS.getMessage());
             case 401:
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
             case 404:
                 throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
             default:
