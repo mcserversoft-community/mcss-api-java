@@ -1146,6 +1146,49 @@ public class Server {
     }
 
     /**
+     * Change the java allocated memory - This applies after a server restart
+     * @param javaAllocatedMemory new memory size in MegaBytes
+     * @throws APINotFoundException if the server is not found
+     * @throws APIUnauthorizedException if the API key is invalid/expired
+     * @throws APINoServerAccessException if the API key does not have access to the server
+     * @throws IOException if there is an error with the connection
+     */
+    public void setJavaAllocatedMemory(int javaAllocatedMemory) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+        URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
+                .replace("{IP}", api.IP));
+
+        HttpURLConnection conn = createPutConnection(url);
+
+        JSONObject json = new JSONObject();
+        json.put("javaAllocatedMemory", javaAllocatedMemory);
+
+        conn.connect();
+
+        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+        writer.write(json.toString());
+        writer.flush();
+
+        int responseCode = conn.getResponseCode();
+
+        switch (responseCode) {
+            case 200:
+                break;
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            default:
+                throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
+        }
+
+        conn.disconnect();
+
+        this.javaAllocatedMemory = javaAllocatedMemory;
+    }
+
+    /**
      * Set the new KeepOnline behaviour
      * @param keepOnline the new KeepOnline behaviour
      * @throws APINotFoundException if the server is not found
