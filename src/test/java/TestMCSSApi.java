@@ -72,7 +72,7 @@ class TestMCSSApi {
             fail("Thorn APIUnauthorizedException while testing information");
         }
         assertNotNull(info, "Info is null");
-        assertEquals("1.0.0", info.getMCSSApiVersion(), "Version is not 1.0.0");
+        assertEquals("1.2.1", info.getMCSSApiVersion(), "Version is not 1.0.0");
         assertTrue(info.getYouAreAwesome(), "Expected \"areYouAwesome\" to be true");
     }
 

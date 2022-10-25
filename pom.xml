@@ -6,7 +6,7 @@
 
     <groupId>dev.le_app</groupId>
     <artifactId>mcss-api-java</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2.1</version>
 
 
     <repositories>
@@ -37,7 +37,7 @@
     </dependencies>
 
 
-    <build>
+    <!--<build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -46,7 +46,7 @@
             </plugin>
         </plugins>
 
-    </build>
+    </build>-->
 
     <distributionManagement>
         <repository>
