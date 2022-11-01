@@ -5,5 +5,22 @@
   "repoHost": "https://github.com",
   "linkToUsage": false,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "LostAndDead",
+      "name": "LostAndDead",
+      "avatar_url": "https://avatars.githubusercontent.com/u/39418539?v=4",
+      "profile": "https://lostanddead.co.uk",
+      "contributions": [
+        "mentoring",
+        "ideas",
+        "review"
+      ]
+    }
+  ],
+  "files": [
+    "README.md"
+  ],
+  "commitConvention": "angular",
+  "contributorsPerLine": 7
 }
