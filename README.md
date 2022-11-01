@@ -3,7 +3,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/fuck-it-ship-it.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)  [![forthebadge](https://forthebadge.com/images/badges/uses-badges.svg)](https://forthebadge.com)  
 ![GitHub issues](https://img.shields.io/github/issues/Les-Projects/mcss-api-java?style=for-the-badge)  ![GitHub pull requests](https://img.shields.io/github/issues-pr/Les-Projects/mcss-api-java?label=Pull%20Requests&style=for-the-badge)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Introduction
