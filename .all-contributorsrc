@@ -5,5 +5,23 @@
   "repoHost": "https://github.com",
   "linkToUsage": false,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "vaio2005",
+      "name": "filliravaz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40716956?v=4",
+      "profile": "https://filliravaz.me/ COMING SOON",
+      "contributions": [
+        "code",
+        "example",
+        "ideas",
+        "maintenance"
+      ]
+    }
+  ],
+  "files": [
+    "README.md"
+  ],
+  "commitConvention": "angular",
+  "contributorsPerLine": 7
 }
