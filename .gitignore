@@ -92,3 +92,6 @@ secrets.gradle
 # Maven
 log/
 target/
+.idea/discord.xml
+.idea/compiler.xml
+.idea/misc.xml

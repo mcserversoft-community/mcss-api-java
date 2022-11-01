@@ -29,7 +29,7 @@ public class MCSSApi {
     protected String IP = null;
     protected String token = null;
     protected String version = null;
-    protected String expectedVersion = "1.2.0";
+    protected String expectedVersion = "1.2.1";
 
     protected Boolean allowUnsafeSSL = false;
 
