@@ -1,0 +1,9 @@
+{
+  "projectName": "mcss-api-java",
+  "projectOwner": "Les-Projects",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "linkToUsage": false,
+  "skipCi": true,
+  "contributors": []
+}
