@@ -7,6 +7,18 @@
   "skipCi": true,
   "contributors": [
     {
+      "login": "vaio2005",
+      "name": "filliravaz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40716956?v=4",
+      "profile": "https://filliravaz.me/ COMING SOON",
+      "contributions": [
+        "code",
+        "example",
+        "ideas",
+        "maintenance"
+      ]
+    },
+    {
       "login": "LostAndDead",
       "name": "LostAndDead",
       "avatar_url": "https://avatars.githubusercontent.com/u/39418539?v=4",

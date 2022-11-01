@@ -21,6 +21,7 @@ You're more than welcome to contribute and improve the code.
 <table>
   <tbody>
     <tr>
+      <td align="center"><a href="https://filliravaz.me/ COMING SOON"><img src="https://avatars.githubusercontent.com/u/40716956?v=4?s=100" width="100px;" alt="filliravaz"/><br /><sub><b>filliravaz</b></sub></a><br /><a href="https://github.com/Les-Projects/mcss-api-java/commits?author=vaio2005" title="Code">💻</a> <a href="#example-vaio2005" title="Examples">💡</a> <a href="#ideas-vaio2005" title="Ideas, Planning, & Feedback">🤔</a> <a href="#maintenance-vaio2005" title="Maintenance">🚧</a></td>
       <td align="center"><a href="https://lostanddead.co.uk"><img src="https://avatars.githubusercontent.com/u/39418539?v=4?s=100" width="100px;" alt="LostAndDead"/><br /><sub><b>LostAndDead</b></sub></a><br /><a href="#mentoring-LostAndDead" title="Mentoring">🧑‍🏫</a> <a href="#ideas-LostAndDead" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/Les-Projects/mcss-api-java/pulls?q=is%3Apr+reviewed-by%3ALostAndDead" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
