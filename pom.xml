@@ -10,6 +10,7 @@
 
     <name>MCSS API Wrapper</name>
     <description>A Wrapper for the API of McServerSoft (MCSS)</description>
+    <url>https://github.com/Les-Projects/mcss-api-java</url>
 
 
     <repositories>
