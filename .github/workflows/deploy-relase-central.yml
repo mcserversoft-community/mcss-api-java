@@ -1,8 +1,7 @@
-name: Publish package to the Maven Central Repository
+name: Publish package release to the Maven Central Repository
 on:
   release:
-    types: [created]
-  workflow_dispatch:
+    types: [published]
 
 jobs:
   publish:
@@ -20,7 +19,7 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: mvn clean deploy -P release
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
