@@ -12,7 +12,8 @@ This wrapper is a simple API wrapper for the MCSS API.
 
 ## Disclaimer
 This API wrapper is made by the community. The code might not be the cleanest.  
-You're more than welcome to contribute and improve the code.
+You're more than welcome to contribute and improve the code.  
+**In any case, DO NOT REPORT ISSUES IN OFFICIAL MCSS CHANNELS (such as Discord)**.
 
 ## Contributions
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
