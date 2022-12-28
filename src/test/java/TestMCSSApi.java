@@ -10,16 +10,17 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/*
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TestMCSSApi {
 
-    MCSSApi api;
-    ArrayList<Server> servers;
-    Scheduler scheduler;
-    ArrayList<Task> tasks;
-    Job job;
-    Info info;
+    static MCSSApi api;
+    static ArrayList<Server> servers;
+    static Scheduler scheduler;
+    static ArrayList<Task> tasks;
+    static Job job;
+    static Info info;
 
     static String ip;
     static String token;
@@ -32,6 +33,32 @@ class TestMCSSApi {
         token = System.getenv("MCSS_API_TOKEN");
     }
 
+    @BeforeEach
+    public void init() {
+        try {
+            System.out.println("IP: " + ip);
+            System.out.println("Is token null/empty: " + (token == null || token.isEmpty()));
+            api = new MCSSApi(Objects.requireNonNullElse(ip, "127.0.0.1:25560"), token, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Thorn IOException while testing connection");
+        } catch (APIUnauthorizedException e) {
+            e.printStackTrace();
+            fail("Thorn APIUnauthorizedException while testing connection");
+        } catch (APIVersionMismatchException e) {
+            e.printStackTrace();
+            fail("Thorn APIVersionMismatchException while testing connection");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            fail("Thorn NoSuchAlgorithmException while testing connection");
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+            fail("Thorn KeyManagementException while testing connection");
+        }
+        assertNotNull(api, "API is null");
+    }
+
+    /*
     @Test
     @DisplayName("Test the API connection")
     @Order(1)
@@ -58,6 +85,7 @@ class TestMCSSApi {
         }
         assertNotNull(api, "API is null");
     }
+    */
 
     @Test
     @DisplayName("Testing returned information about API")
@@ -73,7 +101,7 @@ class TestMCSSApi {
             fail("Thorn APIUnauthorizedException while testing information");
         }
         assertNotNull(info, "Info is null");
-        assertEquals("1.2.1", info.getMCSSApiVersion(), "Version is not 1.0.0");
+        assertEquals("1.2.1", info.getMCSSApiVersion(), "Version is not 1.2.1");
         assertTrue(info.getYouAreAwesome(), "Expected \"areYouAwesome\" to be true");
     }
 
@@ -83,6 +111,9 @@ class TestMCSSApi {
     void testGetServers() {
         try {
             servers = api.getServers();
+            for (Server server : servers) {
+                System.out.println(server);
+            }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
             fail("Thrown ApiUnauthorizedException while getting servers");
@@ -117,6 +148,9 @@ class TestMCSSApi {
     void testGetTasks() {
         try {
             tasks = scheduler.getTasks();
+            for (Task task : tasks) {
+                System.out.println(task.toString());
+            }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
             fail("Thrown ApiUnauthorizedException while getting tasks");
@@ -143,8 +177,11 @@ class TestMCSSApi {
     @Order(6)
     void testGetTaskInfo() {
         try {
-            tasks.get(0).getInterval();
-            tasks.get(0).getTaskName();
+            if (tasks.get(0).getTaskType() == TaskType.INTERVAL) System.out.println(tasks.get(0).getInterval());
+            else if (tasks.get(0).getTaskType() == TaskType.FIXED_TIME) System.out.println(tasks.get(0).getTime().toString());
+            else if (tasks.get(0).getTaskType() == TaskType.TIMELESS) System.out.println("Timeless task");
+            else fail("Unknown task type");
+            System.out.println(tasks.get(0).getTaskName());
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
             fail("Thrown ApiUnauthorizedException while getting task info");
@@ -178,8 +215,10 @@ class TestMCSSApi {
             if (job instanceof RunCommandsJob) {
                 assertNotNull(job.getCommands(), "Commands is null");
                 assertTrue(job.getCommands().size() > 0, "Commands is empty");
-            } else {
-                fail("Job is not the expected type");
+            } else if (job instanceof BackupJob ) {
+                assertNotNull(job.getBackupGUID(), "Backup ID is null");
+            } else if (job instanceof ServerActionJob) {
+                assertNotNull(job.getAction(), "Action is null");
             }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
@@ -199,6 +238,8 @@ class TestMCSSApi {
 
     @AfterAll
     void tearDown() {
+        token = null;
+        ip = null;
         api = null;
         info = null;
         servers = null;
@@ -207,5 +248,4 @@ class TestMCSSApi {
         job = null;
     }
 }
-*/
 
