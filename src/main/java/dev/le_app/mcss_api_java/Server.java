@@ -1335,5 +1335,26 @@ public class Server {
         return conn;
     }
 
+
+
+
+    @Override
+    public String toString() {
+        return "Server{" +
+                "GUID='" + GUID + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", pathToFolder='" + pathToFolder + '\'' +
+                ", folderName='" + folderName + '\'' +
+                ", creationDate=" + creationDate +
+                ", isSetToAutostart=" + isSetToAutostart +
+                ", keepOnline=" + keepOnline +
+                ", javaAllocatedMemory=" + javaAllocatedMemory +
+                ", javaStartupLine='" + javaStartupLine + '\'' +
+                ", forceSaveOnStop=" + forceSaveOnStop +
+                '}';
+    }
+
 }
 
