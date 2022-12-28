@@ -180,7 +180,7 @@ public class MCSSApi {
 
         //save the response in a JSONObject
         InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-        JSONObject json = new JSONObject(new JSONTokener(reader));
+        JSONArray json = new JSONArray(new JSONTokener(reader));
 
         //close connection
         conn.disconnect();

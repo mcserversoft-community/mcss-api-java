@@ -191,9 +191,8 @@ public class Scheduler {
 
         //save the response in a JSONObject
         InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-        JSONObject json = new JSONObject(new JSONTokener(reader));
+        JSONArray jsonArray = new JSONArray(new JSONTokener(reader));
 
-        JSONArray jsonArray = json.getJSONArray("tasks");
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject task = jsonArray.getJSONObject(i);
@@ -503,5 +502,12 @@ public class Scheduler {
         String taskGUID = json.getString("taskId");
 
         return new Task(api, GUID, taskGUID, Name, Enabled);
+    }
+
+    @Override
+    public String toString() {
+        return "Scheduler{" +
+                "GUID='" + GUID + '\'' +
+                '}';
     }
 }
