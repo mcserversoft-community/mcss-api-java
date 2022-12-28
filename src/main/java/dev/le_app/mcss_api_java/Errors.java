@@ -79,9 +79,11 @@ public enum Errors {
 
     /** Method not available for this job type */
     METHOD_NOT_SUPPORTED("This method is not supported for this job type."),
+    SERVER_MUST_BE_OFFLINE("Server must be offline to perform this action."),
 
     /** Task doesn't have an action */
     ACTION_NOT_FOUND("No action found for this task.");
+
 
     private final String message;
 

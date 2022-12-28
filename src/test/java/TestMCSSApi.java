@@ -133,6 +133,9 @@ class TestMCSSApi {
         } catch (APINoServerAccessException e) {
             e.printStackTrace();
             fail("Thrown APINoServerAccessException while getting servers");
+        } catch (APIServerMustBeOfflineException e) {
+            //Ignored - an action might be executed on a server that is online
+            //No need to fail the test
         }
         assertNotNull(servers, "Servers is null");
         assertTrue(servers.size() > 0, "Servers is empty");

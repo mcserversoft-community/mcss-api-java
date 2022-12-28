@@ -1,6 +1,7 @@
 package dev.le_app.mcss_api_java;
 
 import dev.le_app.mcss_api_java.exceptions.APINoServerAccessException;
+import dev.le_app.mcss_api_java.exceptions.APIServerMustBeOfflineException;
 import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
 import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
 import org.json.JSONArray;
@@ -43,9 +44,10 @@ public class Server {
 
     private final MCSSApi api;
 
-    protected Server(String GUID, MCSSApi api) {
+    protected Server(String GUID, MCSSApi api) throws APIUnauthorizedException, IOException, APINoServerAccessException, APINotFoundException {
         this.GUID = GUID;
         this.api = api;
+        updateDetails();
     }
 
     /**
@@ -986,7 +988,7 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setName(String name) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setName(String name) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
 
         //Create URL
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
@@ -996,15 +998,14 @@ public class Server {
         HttpURLConnection conn = createPutConnection(url);
 
         //Create JSON object to send
-        JSONObject json = new JSONObject();
-        json.put("name", name);
+        String json = "{\"name\": \"" + name + "\"}";
 
         //Connect
         conn.connect();
 
         //Write the jsonobject
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         //Get the response code of the connection
@@ -1020,6 +1021,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1038,19 +1041,18 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setDescription(String description) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setDescription(String description) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
                 .replace("{IP}", api.IP));
 
         HttpURLConnection conn = createPutConnection(url);
 
-        JSONObject json = new JSONObject();
-        json.put("description", description);
+        String json = "{\"description\": \"" + description + "\"}";
 
         conn.connect();
 
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         int responseCode = conn.getResponseCode();
@@ -1064,6 +1066,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1081,19 +1085,18 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setAutostart(boolean autostart) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setAutostart(boolean autostart) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
                 .replace("{IP}", api.IP));
 
         HttpURLConnection conn = createPutConnection(url);
 
-        JSONObject json = new JSONObject();
-        json.put("isSetToAutoStart", autostart);
+        String json = "{\"isSetToAutoStart\": " + autostart + "}";
 
         conn.connect();
 
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         int responseCode = conn.getResponseCode();
@@ -1107,6 +1110,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1124,19 +1129,18 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setForceSaveOnStop(boolean forceSaveOnStop) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setForceSaveOnStop(boolean forceSaveOnStop) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
                 .replace("{IP}", api.IP));
 
         HttpURLConnection conn = createPutConnection(url);
 
-        JSONObject json = new JSONObject();
-        json.put("forceSaveOnStop", forceSaveOnStop);
+        String json = "{\"forceSaveOnStop\": " + forceSaveOnStop + "}";
 
         conn.connect();
 
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         int responseCode = conn.getResponseCode();
@@ -1150,6 +1154,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1167,19 +1173,18 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setJavaAllocatedMemory(int javaAllocatedMemory) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setJavaAllocatedMemory(int javaAllocatedMemory) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
                 .replace("{IP}", api.IP));
 
         HttpURLConnection conn = createPutConnection(url);
 
-        JSONObject json = new JSONObject();
-        json.put("javaAllocatedMemory", javaAllocatedMemory);
+        String json = "{\"javaAllocatedMemory\": " + javaAllocatedMemory + "}";
 
         conn.connect();
 
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         int responseCode = conn.getResponseCode();
@@ -1193,6 +1198,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1210,19 +1217,18 @@ public class Server {
      * @throws APINoServerAccessException if the API key does not have access to the server
      * @throws IOException if there is an error with the connection
      */
-    public void setKeepOnline(KeepOnline keepOnline) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException {
+    public void setKeepOnline(KeepOnline keepOnline) throws APINotFoundException, APIUnauthorizedException, APINoServerAccessException, IOException, APIServerMustBeOfflineException {
         URL url = new URL(Endpoints.SERVER_DETAILS.getEndpoint().replace("{SERVER_ID}", GUID)
                 .replace("{IP}", api.IP));
 
         HttpURLConnection conn = createPutConnection(url);
 
-        JSONObject json = new JSONObject();
-        json.put("keepOnline", keepOnline.getValue());
+        String json = "{\"keepOnline\": " + keepOnline.getValue() + "}";
 
         conn.connect();
 
         OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json.toString());
+        writer.write(json);
         writer.flush();
 
         int responseCode = conn.getResponseCode();
@@ -1236,6 +1242,8 @@ public class Server {
                 throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
             case 403:
                 throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 405:
+                throw new APIServerMustBeOfflineException(Errors.SERVER_MUST_BE_OFFLINE.getMessage());
             default:
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
@@ -1279,7 +1287,7 @@ public class Server {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
 
         //close connection
         conn.disconnect();
@@ -1291,7 +1299,7 @@ public class Server {
         this.pathToFolder = json.getString("pathToFolder");
         this.folderName = json.getString("folderName");
         this.creationDate = LocalDateTime.parse(json.getString("creationDate"), formatter);
-        this.isSetToAutostart = json.getBoolean("isSetToAutostart");
+        this.isSetToAutostart = json.getBoolean("isSetToAutoStart");
         this.keepOnline = KeepOnline.findByVal(json.getInt("keepOnline"));
         this.javaAllocatedMemory = json.getInt("javaAllocatedMemory");
         this.javaStartupLine = json.getString("javaStartupLine");
@@ -1306,6 +1314,7 @@ public class Server {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
         return conn;
     }
 

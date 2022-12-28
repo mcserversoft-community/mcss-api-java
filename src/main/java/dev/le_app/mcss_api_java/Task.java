@@ -908,6 +908,7 @@ public class Task {
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
+        conn.setDoInput(true);
         return conn;
     }
 
@@ -921,6 +922,7 @@ public class Task {
         conn.setRequestProperty("APIKey", api.token);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
+        conn.setDoInput(true);
 
         return conn;
     }
