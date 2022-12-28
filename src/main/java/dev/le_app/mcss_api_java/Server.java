@@ -155,7 +155,7 @@ public class Server {
     public ArrayList<Backup> getBackups() throws APIUnauthorizedException, APINoServerAccessException, APINotFoundException, IOException {
 
         //Create the URL
-        URL url = new URL(Endpoints.SERVER_BACKUPS.getEndpoint().replace("{GUID}", GUID).replace("{IP}", api.IP));
+        URL url = new URL(Endpoints.SERVER_BACKUPS.getEndpoint().replace("{SERVER_ID}", GUID).replace("{IP}", api.IP));
 
         //Create the connection
         HttpURLConnection connection = createGetConnection(url);
@@ -207,7 +207,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -255,7 +255,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -300,7 +300,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -347,7 +347,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -392,7 +392,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -437,7 +437,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_STATS.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -485,7 +485,7 @@ public class Server {
 
         //Create the URL
         URL url = new URL(Endpoints.GET_ICON.getEndpoint().replace("{IP}", api.IP)
-                .replace("{GUID}", GUID));
+                .replace("{SERVER_ID}", GUID));
 
         //Create the connection
         HttpURLConnection conn = createGetConnection(url);
@@ -539,7 +539,7 @@ public class Server {
         conn.connect();
 
         //Create the json object to send
-        String json = "{\"actionId\":" + action.getValue() + "}";
+        String json = "{\"action\":" + action.getValue() + "}";
         //Get the outputstream of the connection
         OutputStream os = conn.getOutputStream();
         //Write the json to the outputstream

@@ -110,9 +110,16 @@ class TestMCSSApi {
     @Order(3)
     void testGetServers() {
         try {
+            String name;
             servers = api.getServers();
             for (Server server : servers) {
                 System.out.println(server);
+                server.executeServerAction(ServerAction.START);
+                server.executeServerAction(ServerAction.KILL);
+                name = server.getName();
+                server.setName("API Test");
+                assert(server.getName().equals("API Test"));
+                server.setName(name);
             }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
@@ -150,6 +157,7 @@ class TestMCSSApi {
             tasks = scheduler.getTasks();
             for (Task task : tasks) {
                 System.out.println(task.toString());
+                task.runTask();
             }
         } catch (APIUnauthorizedException e) {
             e.printStackTrace();
