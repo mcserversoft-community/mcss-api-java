@@ -46,7 +46,7 @@ public class ServerActionJob extends Job {
     @Override
     public ServerAction getAction() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", TaskID));
 
         //create a connection
@@ -123,7 +123,7 @@ public class ServerActionJob extends Job {
      */
     public Job setAction(ServerAction action) throws APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, IOException {
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", TaskID));
 
         //create a connection

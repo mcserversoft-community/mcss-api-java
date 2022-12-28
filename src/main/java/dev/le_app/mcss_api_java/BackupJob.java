@@ -54,7 +54,7 @@ public class BackupJob extends Job {
     @Override
     public String getBackupGUID() throws APIUnauthorizedException, APINotFoundException, IOException {
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", TaskID));
 
         //Create the connection
@@ -109,7 +109,7 @@ public class BackupJob extends Job {
     @Override
     public Job setBackupGUID(String backupGUID) throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", TaskID));
 
         //Create the connection

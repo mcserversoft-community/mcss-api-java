@@ -85,7 +85,7 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.TASK_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID).replace("{TASK_ID}", taskID));
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID).replace("{TASK_ID}", taskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -141,18 +141,10 @@ public class Task {
     private TaskType figureOutTaskType() throws IOException, APIUnauthorizedException, APINotFoundException, APIInvalidTaskDetailsException, APINoServerAccessException {
 
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
-                .replace("{TASK_ID}", taskID));
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID).replace("{TASK_ID}", taskID));
 
         //create a connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", api.token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         //connect to the server
         conn.connect();
@@ -186,10 +178,8 @@ public class Task {
             return dev.le_app.mcss_api_java.TaskType.FIXED_TIME;
         } else if (timing.has("interval")) {
             return dev.le_app.mcss_api_java.TaskType.INTERVAL;
-        } else if (timing.has("timeless")) {
-            return dev.le_app.mcss_api_java.TaskType.TIMELESS;
         } else {
-            throw new APIInvalidTaskDetailsException(Errors.NO_TIMING_INFORMATION.getMessage());
+            return dev.le_app.mcss_api_java.TaskType.TIMELESS;
         }
     }
 
@@ -250,7 +240,7 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -307,7 +297,7 @@ public class Task {
             throw new APINotFoundException(Errors.TIME_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -378,7 +368,7 @@ public class Task {
         }
 
         //Create the URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -453,7 +443,7 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.ENABLE_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -508,7 +498,7 @@ public class Task {
         } else if (Deleted) {
             throw new APIInvalidTaskDetailsException(Errors.DISABLE_DELETED.getMessage());
         }
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -572,7 +562,7 @@ public class Task {
         }
 
         //Create the URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //Create the connection
@@ -625,7 +615,7 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //Create connection
@@ -675,7 +665,7 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.RUN_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -719,7 +709,7 @@ public class Task {
             throw new APIInvalidTaskDetailsException(Errors.REPEAT_TIMELESS.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -779,7 +769,7 @@ public class Task {
         }
 
         //Create URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //Create connection
@@ -822,7 +812,7 @@ public class Task {
 
     public void setPlayerRequirement(PlayerRequirement playerRequirement) throws APIUnauthorizedException, APINotFoundException, APINoServerAccessException, APIInvalidTaskDetailsException, IOException {
         //Create the URL
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //Create connection
@@ -876,7 +866,7 @@ public class Task {
             throw new APINotFoundException(Errors.TASK_ALREADY_DELETED.getMessage());
         }
 
-        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{GUID}", GUID)
+        URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
                 .replace("{TASK_ID}", taskID));
 
         //create a connection
@@ -914,14 +904,10 @@ public class Task {
 
     private HttpURLConnection createGetConnection(URL url) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the request method and request properties
         conn.setRequestMethod("GET");
         conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
         conn.setReadTimeout(5000);
         conn.setRequestProperty("APIKey", api.token);
-        conn.setDoInput(true);
-
         return conn;
     }
 
@@ -964,5 +950,19 @@ public class Task {
         conn.setDoOutput(true);
 
         return conn;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "GUID='" + GUID + '\'' +
+                "taskID='" + taskID + '\'' +
+                ", taskName='" + taskName + '\'' +
+                ", enabled=" + enabled + '\'' +
+                ", taskType=" + taskType.name() + '\'' +
+                ", playerRequirement=" + playerRequirement.name() + '\'' +
+                ", Deleted=" + Deleted + '\'' +
+                ", taskJobType=" + taskJobType.name() + '\'' +
+                '}';
     }
 }
