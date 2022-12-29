@@ -51,7 +51,7 @@ public class RunCommandsJob extends Job {
     public ArrayList<String> getCommands() throws APIUnauthorizedException, APINotFoundException, IOException, APIInvalidTaskDetailsException {
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
-                .replace("{TaskID}", TaskID));
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -135,7 +135,7 @@ public class RunCommandsJob extends Job {
         }
 
         URL url = new URL(Endpoints.GET_TASK.getEndpoint().replace("{IP}", api.IP).replace("{SERVER_ID}", GUID)
-                .replace("{TaskID}", TaskID));
+                .replace("{TASK_ID}", TaskID));
 
         //create a connection
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
