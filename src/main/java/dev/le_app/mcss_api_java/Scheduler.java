@@ -210,7 +210,11 @@ public class Scheduler {
      * @param Enabled Whether the task should be enabled or not
      * @param repeating Whether the task should repeat or not
      * @param interval The interval between each task
-     * @param job The job to run
+     * @param job The ENUM of the job type to run
+     * @param jobData The data of the job to run
+     *                for backup: the backup ID
+     *                for command: the command(s) to run, separated with a semicolon (;)
+     *                for action: the action to run (start, stop, restart, kill)
      * @return The created task
      * @throws APIInvalidTaskDetailsException if the task details are invalid
      * @throws APIUnauthorizedException if the API key is invalid/expired
@@ -218,13 +222,12 @@ public class Scheduler {
      * @throws APINotFoundException if the server is not found
      * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public Task createIntervalTask(String Name, Boolean Enabled, Boolean repeating, int interval, Job job)
+    public Task createIntervalTask(String Name, Boolean Enabled, Boolean repeating, int interval, TaskJobType job, String jobData)
             throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException,
             APINotFoundException, APINoServerAccessException {
 
-
         //Check if the name contains special characters
-        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Pattern p = Pattern.compile("^[a-zA-Z0-9 ]*$", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(Name);
         if (m.find()) {
             throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
@@ -254,20 +257,32 @@ public class Scheduler {
         //Create the Job JSONObject
         JSONObject jobJson = new JSONObject();
 
+        //jobJSON is for commands
+        // "job": {
+        //   "commands": [
+        //      "command"
+        //   ]
+        // }
+
         //Populate the JSONObject appropriately
-        if (job instanceof ServerActionJob) {
-            jobJson.put("action", job.getAction());
-        } else if (job instanceof RunCommandsJob) {
-            //Create a JSONArray containing the commands, then put it in the jobJson
-            JSONArray commands = new JSONArray();
-            for (String command : job.getCommands()) {
-                commands.put(command);
-            }
-            jobJson.put("commands", commands);
-        } else if (job instanceof BackupJob) {
-            jobJson.put("backupIdentifier", job.getBackupGUID());
-        } else {
-            throw new APIInvalidTaskDetailsException("Invalid job type");
+        switch (job) {
+            case RUN_COMMANDS:
+                JSONArray commands = new JSONArray();
+                //Split the commands by semicolon
+                String[] commandArray = jobData.split(";");
+                for (String command : commandArray) {
+                    commands.put(command);
+                }
+                jobJson.put("commands", commands);
+                break;
+            case SERVER_ACTION:
+                //parse the action to the ServerAction ENUM
+                ServerAction action = ServerAction.valueOf(jobData.toUpperCase());
+                jobJson.put("action", action.getValue());
+                break;
+            case START_BACKUP:
+                jobJson.put("backupIdentifier", jobData);
+                break;
         }
 
         //Put the jobJson in the mainJson
@@ -314,7 +329,11 @@ public class Scheduler {
      * @param Enabled Whether the task should be enabled or not
      * @param repeating Whether the task should repeat or not
      * @param time The time to run the task
-     * @param job The job to run
+     * @param job The ENUM of the job type to run
+     * @param jobData The data of the job to run
+     *                for backup: the backup ID
+     *                for command: the command(s) to run, separated with a semicolon (;)
+     *                for action: the action to run (start, stop, restart, kill) (case insensitive - no spaces)
      * @return The created task
      * @throws APIInvalidTaskDetailsException if the task details are invalid
      * @throws APIUnauthorizedException if the API key is invalid/expired
@@ -322,10 +341,10 @@ public class Scheduler {
      * @throws APINotFoundException if the server is not found
      * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public Task createFixedTimeTask(String Name, Boolean Enabled, Boolean repeating, LocalTime time, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
+    public Task createFixedTimeTask(String Name, Boolean Enabled, Boolean repeating, LocalTime time, TaskJobType job, String jobData) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
 
         //Check if the name contains special characters
-        Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Pattern p = Pattern.compile("^[a-zA-Z0-9 ]*$", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(Name);
         if (m.find()) {
             throw new APIInvalidTaskDetailsException(Errors.NAME_SPECIAL_CHAR.getMessage());
@@ -356,19 +375,24 @@ public class Scheduler {
         JSONObject jobJson = new JSONObject();
 
         //Populate the JSONObject appropriately
-        if (job instanceof ServerActionJob) {
-            jobJson.put("action", job.getAction());
-        } else if (job instanceof RunCommandsJob) {
-            //Create a JSONArray containing the commands, then put it in the jobJson
-            JSONArray commands = new JSONArray();
-            for (String command : job.getCommands()) {
-                commands.put(command);
-            }
-            jobJson.put("commands", commands);
-        } else if (job instanceof BackupJob) {
-            jobJson.put("backupIdentifier", job.getBackupGUID());
-        } else {
-            throw new APIInvalidTaskDetailsException("Invalid job type");
+        switch (job) {
+            case RUN_COMMANDS:
+                JSONArray commands = new JSONArray();
+                //Split the commands by semicolon
+                String[] commandArray = jobData.split(";");
+                for (String command : commandArray) {
+                    commands.put(command);
+                }
+                jobJson.put("commands", commands);
+                break;
+            case SERVER_ACTION:
+                //parse the action to the ServerAction ENUM
+                ServerAction action = ServerAction.valueOf(jobData.toUpperCase());
+                jobJson.put("action", action.getValue());
+                break;
+            case START_BACKUP:
+                jobJson.put("backupIdentifier", jobData);
+                break;
         }
 
         //Put the jobJson in the mainJson
@@ -413,7 +437,11 @@ public class Scheduler {
      * Create a new Interval Task
      * @param Name Name of the task to create
      * @param Enabled Whether the task should be enabled or not
-     * @param job The job to run
+     * @param job The job type to run (ENUM)
+     * @param jobData The data of the job to run
+     *                for backup: the backup ID /
+     *                for command: the command(s) to run, separated with a semicolon (;) /
+     *                for action: the action to run (start, stop, restart, kill) (case insensitive - no spaces)
      * @return The created task
      * @throws APIInvalidTaskDetailsException if the task details are invalid
      * @throws APIUnauthorizedException if the API key is invalid/expired
@@ -421,7 +449,9 @@ public class Scheduler {
      * @throws APINotFoundException if the server is not found
      * @throws APINoServerAccessException if the API key does not have access to the server
      */
-    public Task createTimelessTask(String Name, Boolean Enabled, Job job) throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException, APINoServerAccessException {
+    public Task createTimelessTask(String Name, Boolean Enabled, TaskJobType job, String jobData)
+            throws APIInvalidTaskDetailsException, APIUnauthorizedException, IOException, APINotFoundException,
+            APINoServerAccessException {
 
         //Check if the name contains special characters
         Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
@@ -451,19 +481,24 @@ public class Scheduler {
         JSONObject jobJson = new JSONObject();
 
         //Populate the JSONObject appropriately
-        if (job instanceof ServerActionJob) {
-            jobJson.put("action", job.getAction());
-        } else if (job instanceof RunCommandsJob) {
-            //Create a JSONArray containing the commands, then put it in the jobJson
-            JSONArray commands = new JSONArray();
-            for (String command : job.getCommands()) {
-                commands.put(command);
-            }
-            jobJson.put("commands", commands);
-        } else if (job instanceof BackupJob) {
-            jobJson.put("backupIdentifier", job.getBackupGUID());
-        } else {
-            throw new APIInvalidTaskDetailsException("Invalid job type");
+        switch (job) {
+            case RUN_COMMANDS:
+                JSONArray commands = new JSONArray();
+                //Split the commands by semicolon
+                String[] commandArray = jobData.split(";");
+                for (String command : commandArray) {
+                    commands.put(command);
+                }
+                jobJson.put("commands", commands);
+                break;
+            case SERVER_ACTION:
+                //parse the action to the ServerAction ENUM
+                ServerAction action = ServerAction.valueOf(jobData.toUpperCase());
+                jobJson.put("action", action.getValue());
+                break;
+            case START_BACKUP:
+                jobJson.put("backupIdentifier", jobData);
+                break;
         }
 
         //Put the jobJson in the mainJson
