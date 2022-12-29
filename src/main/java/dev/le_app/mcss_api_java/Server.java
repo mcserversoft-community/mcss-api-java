@@ -719,7 +719,7 @@ public class Server {
         }
 
         //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
         JSONArray consoleJsonArray = new JSONArray(json);
 
@@ -783,7 +783,7 @@ public class Server {
         }
 
         //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
         JSONArray consoleJsonArray = new JSONArray(json);
 
@@ -847,7 +847,7 @@ public class Server {
         }
 
         //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
         JSONArray consoleJsonArray = new JSONArray(json);
 
@@ -914,7 +914,7 @@ public class Server {
         }
 
         //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
         JSONArray consoleJsonArray = new JSONArray(json);
 
@@ -967,7 +967,7 @@ public class Server {
         }
 
         //save the response in a JSONObject
-        JSONObject json = new JSONObject(conn.getOutputStream());
+        JSONObject json = new JSONObject(conn.getInputStream());
 
         //close connection
         conn.disconnect();
