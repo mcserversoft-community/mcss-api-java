@@ -718,10 +718,8 @@ public class Server {
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(json);
+        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -782,10 +780,8 @@ public class Server {
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(json);
+        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -846,10 +842,8 @@ public class Server {
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(json);
+        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -913,10 +907,8 @@ public class Server {
                 throw new IOException(Errors.NOT_RECOGNIZED.getMessage() + responseCode);
         }
 
-        //Get response in a JSON object
-        JSONObject json = new JSONObject(conn.getInputStream());
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(json);
+        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
