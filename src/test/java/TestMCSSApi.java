@@ -119,6 +119,9 @@ class TestMCSSApi {
                 name = server.getName();
                 server.setName("API Test");
                 assert(server.getName().equals("API Test"));
+                for (String s : server.getConsole(5)) {
+                    System.out.println(s);
+                }
                 server.setName(name);
             }
         } catch (APIUnauthorizedException e) {

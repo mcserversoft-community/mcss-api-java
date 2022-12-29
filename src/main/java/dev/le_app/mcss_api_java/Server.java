@@ -719,7 +719,8 @@ public class Server {
         }
 
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONArray consoleJsonArray = new JSONArray(new JSONTokener(reader));
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -781,7 +782,8 @@ public class Server {
         }
 
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONArray consoleJsonArray = new JSONArray(new JSONTokener(reader));
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -843,7 +845,8 @@ public class Server {
         }
 
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONArray consoleJsonArray = new JSONArray(new JSONTokener(reader));
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
@@ -908,7 +911,8 @@ public class Server {
         }
 
         //get the JSON array from the object
-        JSONArray consoleJsonArray = new JSONArray(conn.getInputStream());
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        JSONArray consoleJsonArray = new JSONArray(new JSONTokener(reader));
 
         //Create a string array to store the console
         String[] console = new String[consoleJsonArray.length()];
