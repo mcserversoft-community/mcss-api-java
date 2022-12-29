@@ -471,7 +471,7 @@ public class Server {
         conn.disconnect();
 
         JSONObject stats = response.getJSONObject("latest");
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(stats.getLong("startTime")), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(stats.getLong("startDate")), ZoneId.systemDefault());
 
     }
 
