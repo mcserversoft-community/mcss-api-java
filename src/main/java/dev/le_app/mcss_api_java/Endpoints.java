@@ -56,7 +56,8 @@ public enum Endpoints {
     CREATE_TASK("https://{IP}/api/v1/servers/{SERVER_ID}/scheduler/tasks"),
 
     /** Endpoint for getting the task details */
-    GET_TASK("https://{IP}/api/v1/servers/{SERVER_ID}/scheduler/tasks/{TASK_ID}");
+    GET_TASK("https://{IP}/api/v1/servers/{SERVER_ID}/scheduler/tasks/{TASK_ID}"),
+    WIPE_SESSIONS("https://{IP}/api/v2/users/wipe/sessions");
 
 
     private final String endpoint;

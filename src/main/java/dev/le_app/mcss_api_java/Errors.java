@@ -82,7 +82,10 @@ public enum Errors {
     SERVER_MUST_BE_OFFLINE("Server must be offline to perform this action."),
 
     /** Task doesn't have an action */
-    ACTION_NOT_FOUND("No action found for this task.");
+    ACTION_NOT_FOUND("No action found for this task."),
+
+    NOT_ADMIN("API token provided is not an admin token."),
+    API_ERROR("The MCSS API reutned a server-side error. Please try again later. (ERR_500)");
 
 
     private final String message;

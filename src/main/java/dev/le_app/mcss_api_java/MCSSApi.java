@@ -1,9 +1,6 @@
 package dev.le_app.mcss_api_java;
 
-import dev.le_app.mcss_api_java.exceptions.APINoServerAccessException;
-import dev.le_app.mcss_api_java.exceptions.APINotFoundException;
-import dev.le_app.mcss_api_java.exceptions.APIUnauthorizedException;
-import dev.le_app.mcss_api_java.exceptions.APIVersionMismatchException;
+import dev.le_app.mcss_api_java.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -101,6 +98,36 @@ public class MCSSApi {
         this.version = in.getMCSSApiVersion();
         checkVersionMismatch();
     }
+
+    /**
+     * Resets all web panel sessions, meaning that every web panel user will be logged out,
+     * and will have to log in again.
+     */
+    public void wipeSessions() throws IOException, APIUnauthorizedException, APIServerSideException, APINotFoundException {
+
+        URL url = new URL (Endpoints.WIPE_SESSIONS.getEndpoint().replace("{IP}", IP));
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("apikey", token);
+
+        conn.connect();
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 401 ) {
+            throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+        } else if (responseCode == 403) {
+            throw new APIUnauthorizedException(Errors.NOT_ADMIN.getMessage());
+        } else if (responseCode == 500 ) {
+            throw new APIServerSideException(Errors.API_ERROR.getMessage());
+        } else if (responseCode == 404) {
+            throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+        }
+
+        conn.disconnect();
+    }
+
 
     /**
      * Get general information about the MCSS install
