@@ -3,7 +3,7 @@ package dev.le_app.mcss_api_java;
 /** List of endpoints for the API. */
 public enum Endpoints {
     /** Root endpoint of the API */
-    ROOT("https://{IP}/api/v1"),
+    ROOT("https://{IP}/api/v2"),
     /** Endpoint for getting server list */
     SERVERS("https://{IP}/api/v1/servers"),
     /** Endpoint for getting server details */
