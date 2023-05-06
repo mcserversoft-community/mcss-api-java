@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a server.
@@ -39,6 +40,8 @@ public class Server {
     private int javaAllocatedMemory;
     private String javaStartupLine;
     private boolean forceSaveOnStop;
+    private ArrayList<UserPermissions> userPermissions = new ArrayList<>();
+    private ServerType serverType;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -1300,6 +1303,17 @@ public class Server {
         this.javaAllocatedMemory = json.getInt("javaAllocatedMemory");
         this.javaStartupLine = json.getString("javaStartupLine");
         this.forceSaveOnStop = json.getBoolean("forceSaveOnStop");
+        this.serverType = ServerType.findByVal(json.getString("type"));
+
+        //get the permissions
+        JSONArray permissions = json.getJSONArray("permissions");
+        this.userPermissions = new ArrayList<>();
+
+
+        for (int i = 0; i < permissions.length(); i++) {
+            String permission = permissions.getString(i);
+            this.userPermissions.add(UserPermissions.findByVal(permission));
+        }
 
     }
 
