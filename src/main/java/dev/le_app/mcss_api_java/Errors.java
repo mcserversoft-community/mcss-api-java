@@ -84,7 +84,17 @@ public enum Errors {
     /** Task doesn't have an action */
     ACTION_NOT_FOUND("No action found for this task."),
 
+    /** No servers provided to execute on */
+    NO_SERVERS("No servers provided to execute the task/commands on."),
+    /** Unable to execute an invalid action */
+    INVALID_ACTION("Cannot execute an invalid action."),
+    /** No commands provided */
+    NO_COMMANDS("No commands provided."),
+
+
+    /** User is not administrator */
     NOT_ADMIN("API token provided is not an admin token."),
+    /** The MCSS returned an error 500 */
     API_ERROR("The MCSS API reutned a server-side error. Please try again later. (ERR_500)");
 
 

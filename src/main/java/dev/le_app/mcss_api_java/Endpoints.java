@@ -10,6 +10,10 @@ public enum Endpoints {
     SERVER_DETAILS("https://{IP}/api/v1/servers/{SERVER_ID}"),
     /** Endpoint for getting server count*/
     SERVER_COUNT("https://{IP}/api/v1/servers/count"),
+    /** Execute action on multiple servers */
+    MASS_EXECUTE_ACTION("https://{IP}/api/v2/servers/execute/action"),
+    /** Execute command(s) on multiple servers */
+    MASS_EXECUTE_COMMANDS("https://{IP}/api/v2/servers/execute/commands"),
     /** Endpoint for getting server count with filter */
     SERVER_COUNT_FILTER("https://{IP}/api/v1/servers/count?filter={FILTER}"),
     /** Endpoint for getting server list with filter and servertype */

@@ -8,6 +8,7 @@ import org.json.JSONTokener;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -16,6 +17,7 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -341,6 +343,164 @@ public class MCSSApi {
         //close connection
         conn.disconnect();
         return json.getInt("count");
+    }
+
+    /**
+     * Execute an action on multiple servers.
+     * @param action The action to execute
+     * @param servers A list (or array) of servers to execute the action on.
+     * @return null if the action is executed successfully on all servers, otherwise a HashMap with the server GUID as key and the response code as value.
+     * @throws APIUnauthorizedException if the APIKey is invalid
+     * @throws IOException if there is an error with the connection
+     * @throws APINoServerAccessException If the API key doesn't have access to all the servers specified
+     * @throws APINotFoundException If the all the servers aren't found
+     */
+    public HashMap<String, Integer> ExecuteMassServerAction(ServerAction action, Server... servers) throws APIUnauthorizedException, IOException, APINoServerAccessException, APINotFoundException {
+
+        if (action == ServerAction.INVALID) {
+            throw new IllegalArgumentException(Errors.INVALID_ACTION.getMessage());
+        } else if (servers.length == 0) {
+            throw new IllegalArgumentException(Errors.NO_SERVERS.getMessage());
+        }
+
+        URL url = new URL(Endpoints.MASS_EXECUTE_ACTION.getEndpoint().replace("{IP}", IP));
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+
+        JSONObject json = new JSONObject();
+        JSONArray serverArray = new JSONArray();
+        for (Server server : servers) {
+            serverArray.put(server.getGUID());
+        }
+        json.put("serverIds", serverArray);
+        json.put("action", action.getValue());
+
+        conn.connect();
+
+        String jsonString = json.toString();
+        OutputStream os = conn.getOutputStream();
+
+        os.write(jsonString.getBytes());
+
+        os.flush();
+        os.close();
+
+        int responseCode = conn.getResponseCode();
+
+        switch (responseCode) {
+            case 401:
+                throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403:
+                throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 404:
+                throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 500:
+                throw new IOException(Errors.API_ERROR.getMessage());
+            case 200:
+                return null;
+            case 207:
+                InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+                JSONObject response = new JSONObject(new JSONTokener(reader));
+                HashMap<String, Integer> map = new HashMap<>();
+                JSONArray array = response.getJSONArray("responses");
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    map.put(obj.getString("serverId"), obj.getInt("status"));
+                }
+                return map;
+        }
+
+        //Closing everything
+        conn.disconnect();
+
+        return null;
+
+    }
+
+    /**
+     * Execute a list of commands on multiple servers.
+     * @param commands A list (or array) of commands to execute
+     * @param servers A list (or array) of servers to execute the commands on.
+     * @return null if the commands are executed successfully on all servers, otherwise a HashMap with the server GUID as key and the response code as value.
+     * @throws IOException if there is an error with the connection
+     * @throws APIUnauthorizedException if the APIKey is invalid
+     * @throws APINoServerAccessException If the API key doesn't have access to all the servers specified
+     * @throws APINotFoundException If the all the servers aren't found
+     */
+    public HashMap<String, Integer> ExecuteMassCommands(String[] commands, Server... servers) throws IOException, APIUnauthorizedException, APINoServerAccessException, APINotFoundException {
+
+        if (commands.length == 0) {
+            throw new IllegalArgumentException(Errors.NO_COMMANDS.getMessage());
+        } else if (servers.length == 0) {
+            throw new IllegalArgumentException(Errors.NO_SERVERS.getMessage());
+        }
+
+        URL url = new URL(Endpoints.MASS_EXECUTE_COMMANDS.getEndpoint().replace("{IP}", IP));
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+
+        JSONObject json = new JSONObject();
+        JSONArray serverArray = new JSONArray();
+        for (Server server : servers) {
+            serverArray.put(server.getGUID());
+        }
+        json.put("serverIds", serverArray);
+        JSONArray commandArray = new JSONArray();
+        for (String command : commands) {
+            commandArray.put(command);
+        }
+        json.put("commands", commandArray);
+
+        conn.connect();
+
+        String jsonString = json.toString();
+        OutputStream os = conn.getOutputStream();
+
+        os.write(jsonString.getBytes());
+
+        os.flush();
+        os.close();
+
+        int responseCode = conn.getResponseCode();
+
+        switch (responseCode) {
+            case 401 -> throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403 -> throw new APINoServerAccessException(Errors.NO_SERVER_ACCESS.getMessage());
+            case 404 -> throw new APINotFoundException(Errors.NOT_FOUND.getMessage());
+            case 500 -> throw new IOException(Errors.API_ERROR.getMessage());
+            case 200 -> {return null;}
+            case 207 -> {
+                InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+                JSONObject response = new JSONObject(new JSONTokener(reader));
+                HashMap<String, Integer> map = new HashMap<>();
+                JSONArray array = response.getJSONArray("responses");
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    map.put(obj.getString("serverId"), obj.getInt("status"));
+                }
+                return map;
+            }
+        }
+
+        conn.disconnect();
+
+        return null;
     }
 
 }
