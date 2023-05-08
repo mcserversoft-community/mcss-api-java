@@ -5,7 +5,11 @@ public enum Endpoints {
     /** Root endpoint of the API */
     ROOT("https://{IP}/api/v2"),
     /** Endpoint for getting server list */
-    SERVERS("https://{IP}/api/v1/servers"),
+    SERVERS("https://{IP}/api/v2/servers"),
+    /** Endpoint for getting the user list */
+    USERS("https://{IP}/api/v2/users"),
+    /** Endpoint for getting the user details */
+    USER_INFO("https://{IP}/api/v2/users/{USER_ID}"),
     /** Endpoint for getting server details */
     SERVER_DETAILS("https://{IP}/api/v1/servers/{SERVER_ID}"),
     /** Endpoint for getting server count*/

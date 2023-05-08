@@ -94,6 +94,10 @@ public enum Errors {
 
     /** User is not administrator */
     NOT_ADMIN("API token provided is not an admin token."),
+    /** User doesn't have access to this method */
+    FORBIDDEN("You do not have access to this method. (ERR_403)"),
+    /** The username cannot contain special characters */
+    USER_NAME_SPECIAL_CHAR("User name cannot contain special characters."),
     /** The MCSS returned an error 500 */
     API_ERROR("The MCSS API reutned a server-side error. Please try again later. (ERR_500)");
 
