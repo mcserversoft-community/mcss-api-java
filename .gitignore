@@ -86,6 +86,9 @@ secrets.gradle
 .idea/
 *.iml
 
+# JetClient (REST Api Tool for Intellij)
+.jetclient/
+
 # Mac
 .DS_Store
 
