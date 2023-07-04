@@ -58,14 +58,23 @@ public class User {
 
     public User (String username, boolean enabled, boolean admin, boolean hasAccessToAllServers) {
 
-
         this.functional = false;
         this.username = username;
         this.enabled = enabled;
         this.isAdmin = admin;
         this.hasAccessToAllServers = hasAccessToAllServers;
         if (!hasAccessToAllServers) permissions= null;
-        
+
+    }
+
+    public User (String username, boolean enabled, boolean admin, boolean hasAccessToAllServers, HashMap<String, ArrayList<UserPermissions>> permissions) {
+
+        this.functional = false;
+        this.username = username;
+        this.enabled = enabled;
+        this.isAdmin = admin;
+        this.hasAccessToAllServers = hasAccessToAllServers;
+        this.permissions = permissions;
 
     }
 
@@ -148,6 +157,30 @@ public class User {
         updateDetails();
         return lastModifiedAt;
     }
+
+    //Getters for user creation. They don't update the details, and are protected because they're meant to be used internally.
+
+    protected boolean isEnabledCreation() {
+        return enabled;
+    }
+
+    protected boolean isAdminCreation() {
+        return isAdmin;
+    }
+
+    protected String getUsernameCreation() {
+        return username;
+    }
+
+    protected boolean isHasAccessToAllServersCreation() {
+        return hasAccessToAllServers;
+    }
+
+    protected HashMap<String, ArrayList<UserPermissions>> getPermissionsCreation() {
+        return permissions;
+    }
+
+
 
     /**
      * Update the user information from the API

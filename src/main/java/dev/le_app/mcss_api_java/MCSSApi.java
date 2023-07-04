@@ -14,11 +14,13 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * The main class of the API.
@@ -108,11 +110,7 @@ public class MCSSApi {
     public void wipeSessions() throws IOException, APIUnauthorizedException, APIServerSideException, APINotFoundException {
 
         URL url = new URL (Endpoints.WIPE_SESSIONS.getEndpoint().replace("{IP}", IP));
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("apikey", token);
+        HttpURLConnection conn = createPostConnection(url);
 
         conn.connect();
 
@@ -141,14 +139,7 @@ public class MCSSApi {
         URL url;
 
         url = new URL(Endpoints.ROOT.getEndpoint().replace("{IP}", IP));
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setDoInput(true);
-
+        HttpURLConnection conn = createGetConnection(url);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -184,14 +175,7 @@ public class MCSSApi {
         //create the URL
         URL url = new URL(Endpoints.SERVERS.getEndpoint().replace("{IP}", IP));
         //Create and open the connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        //set the connection variables, request proprieties and request method
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         //Connect to the API
         conn.connect();
@@ -247,13 +231,7 @@ public class MCSSApi {
     public int getServerCount() throws APIUnauthorizedException, IOException {
         URL url = new URL(Endpoints.SERVER_COUNT.getEndpoint().replace("{IP}", IP));
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -281,14 +259,7 @@ public class MCSSApi {
         URL url = new URL( Endpoints.SERVER_COUNT_FILTER.getEndpoint().replace("{IP}", IP)
                 .replace("{FILTER}", filter.getValueStr()));
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setDoInput(true);
-
+        HttpURLConnection conn = createGetConnection(url);
         conn.connect();
         int responseCode = conn.getResponseCode();
         if (responseCode == 401) {
@@ -322,13 +293,7 @@ public class MCSSApi {
                 .replace("{FILTER}", filter.getValueStr())
                 .replace("{SRVTYPE}", serverTypeID));
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setDoInput(true);
+        HttpURLConnection conn = createGetConnection(url);
 
         conn.connect();
         int responseCode = conn.getResponseCode();
@@ -343,6 +308,130 @@ public class MCSSApi {
         //close connection
         conn.disconnect();
         return json.getInt("count");
+    }
+
+    /**
+     * Get all of the users currently in the API.
+     * @return ArrayList of User objects
+     * @throws APIUnauthorizedException if the APIKey is invalid, or the user is not an admin
+     * @throws IOException if there is an error with the connection
+     * @throws APINotFoundException Consider this as an internal server error. It happens if the user found by the get request gets deleted before it is created inside the ArrayList.
+     * @throws APIServerSideException Internal server error (500-or related response codes)
+     */
+    public ArrayList<User> getUsers() throws APIUnauthorizedException, IOException, APIServerSideException, APINotFoundException {
+
+        ArrayList<User> users = new ArrayList<>();
+
+        URL url = new URL(Endpoints.USERS.getEndpoint().replace("{IP}", IP));
+
+        HttpURLConnection conn = createGetConnection(url);
+
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        switch (responseCode) {
+            case 401 -> throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403 -> throw new APIUnauthorizedException(Errors.NOT_ADMIN.getMessage());
+            case 200 -> {
+                //save the response in a JSONObject
+                InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+                JSONArray userArray = new JSONArray(new JSONTokener(reader));
+                //close connection
+                conn.disconnect();
+
+                for (int i = 0; i < userArray.length(); i++) {
+                    JSONObject user = userArray.getJSONObject(i);
+                    users.add(new User(this, user.getString("userId")));
+                }
+            }
+        }
+
+        return users;
+
+    }
+
+    /**
+     * Create an user on the API, for the web panel. The password is not cached by the API Wrapper.
+     * @param user The user to create, already setup with the required fields and options
+     * @param password The password for the user to access the web panel
+     * @param repeatPassword The password repeated, to make sure it's correct
+     * @return The created user, functional inside the API.
+     * @throws IOException If there is an error with the connection
+     * @throws APIServerSideException If the API returns an error 500 or related
+     * @throws APIUnauthorizedException If the APIKey is invalid, OR the user is not an admin
+     * @throws APINotFoundException Consider this as an internal server error. It happens if the user found by the get request gets deleted before it is returned to the user.
+     * @throws APIInvalidUserException If the user is invalid, or the password is invalid
+     */
+    public User createUser(User user, String password, String repeatPassword) throws IOException, APIServerSideException, APIUnauthorizedException, APINotFoundException, APIInvalidUserException {
+
+        URL url = new URL(Endpoints.USERS.getEndpoint().replace("{IP}", IP));
+
+        JSONObject json = new JSONObject();
+
+        json.put("username", user.getUsernameCreation());
+        json.put("password", password);
+        json.put("passwordRepeat", repeatPassword);
+        json.put("enabled", user.isEnabledCreation());
+        json.put("isAdmin", user.isAdminCreation());
+        json.put("hasAccessToAllServers", user.isHasAccessToAllServersCreation());
+        if (user.getPermissionsCreation() != null) {
+
+            //Here the fun starts
+            //Create the object for the permissions. It will later be added to the main json object
+            JSONObject permissions = new JSONObject();
+
+            //For each server that has custom permissions
+            for (Map.Entry<String, ArrayList<UserPermissions>> entry : user.getPermissionsCreation().entrySet()) {
+
+                //Create the object for that specific server
+                JSONObject serverPermissions = new JSONObject();
+
+                //Set the correct permissions
+                serverPermissions.put("viewStats", entry.getValue().contains(UserPermissions.VIEW_STATS));
+                serverPermissions.put("viewConsole", entry.getValue().contains(UserPermissions.VIEW_CONSOLE));
+                serverPermissions.put("useConsole", entry.getValue().contains(UserPermissions.USE_CONSOLE));
+                serverPermissions.put("useServerActions", entry.getValue().contains(UserPermissions.USE_SERVER_ACTIONS));
+
+                //Add the server to the permissions object
+                permissions.put(entry.getKey(), serverPermissions);
+            }
+
+            //Finally add the permissions object to the main json object
+            json.put("customServerPermissions", permissions);
+        }
+        //Finally with the JSON ready, we can now create the connection and actually create the user
+        HttpURLConnection conn = createPostConnection(url);
+
+        conn.connect();
+        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+
+        writer.write(json.toString());
+        writer.flush();
+
+        int responseCode = conn.getResponseCode();
+
+        switch (responseCode) {
+            case 400 -> throw new APIInvalidUserException(Errors.INVALID_USER_DETAILS.getMessage());
+            case 401 -> throw new APIUnauthorizedException(Errors.UNAUTHORIZED.getMessage());
+            case 403 -> throw new APIUnauthorizedException(Errors.NOT_ADMIN.getMessage());
+            case 500 -> throw new APIServerSideException(Errors.API_ERROR.getMessage());
+            case 201 -> {
+                //Get response
+                InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+                JSONObject response = new JSONObject(new JSONTokener(reader));
+
+                //Close connection
+                conn.disconnect();
+
+                //Return the created user
+                return new User(this, response.getString("userId"));
+            }
+            default -> {
+                //Close connection
+                conn.disconnect();
+                throw new APIServerSideException(Errors.API_ERROR.getMessage());
+            }
+        }
+
     }
 
     /**
@@ -365,15 +454,7 @@ public class MCSSApi {
 
         URL url = new URL(Endpoints.MASS_EXECUTE_ACTION.getEndpoint().replace("{IP}", IP));
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("POST");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPostConnection(url);
 
         JSONObject json = new JSONObject();
         JSONArray serverArray = new JSONArray();
@@ -445,15 +526,7 @@ public class MCSSApi {
 
         URL url = new URL(Endpoints.MASS_EXECUTE_COMMANDS.getEndpoint().replace("{IP}", IP));
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("POST");
-        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
-        conn.setReadTimeout(5000);
-        conn.setRequestProperty("APIKey", token);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
+        HttpURLConnection conn = createPostConnection(url);
 
         JSONObject json = new JSONObject();
         JSONArray serverArray = new JSONArray();
@@ -503,4 +576,34 @@ public class MCSSApi {
         return null;
     }
 
+
+    private HttpURLConnection createGetConnection(URL url) throws IOException {
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+
+        return conn;
+    }
+
+    private HttpURLConnection createPostConnection(URL url) throws IOException {
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(5000);// 5000 milliseconds = 5 seconds
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("APIKey", token);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+
+        return conn;
+    }
 }
