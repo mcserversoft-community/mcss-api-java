@@ -49,7 +49,7 @@ public class User {
      * @throws IOException if there is any error during the API request
      * @throws APINotFoundException if the user is not found (should never be thrown)
      */
-    private User (MCSSApi api, String userID) throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+    protected User (MCSSApi api, String userID) throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
         this.api = api;
         this.userID = userID;
         this.functional = true;
@@ -76,6 +76,8 @@ public class User {
      * @return The userID of the user, alphanumeric string
      */
     public String getUserID() {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+
         return userID;
     }
 
@@ -84,6 +86,7 @@ public class User {
      * @return The username of the user, string
      */
     public String getUsername() {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
         return username;
     }
 
@@ -91,7 +94,9 @@ public class User {
      * Returns the enabled status of the user
      * @return The enabled status of the user, boolean
      */
-    public boolean isEnabled() {
+    public boolean isEnabled() throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+        updateDetails();
         return enabled;
     }
 
@@ -99,7 +104,9 @@ public class User {
      * Returns true if the user is an administrator
      * @return The admin status of the user, boolean
      */
-    public boolean isAdmin() {
+    public boolean isAdmin() throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+        updateDetails();
         return isAdmin;
     }
 
@@ -107,7 +114,9 @@ public class User {
      * Returns true if the user has access to all servers (if trye, the permissions HashMap will be null)
      * @return The hasAccessToAllServers status of the user, boolean
      */
-    public boolean isHasAccessToAllServers() {
+    public boolean isHasAccessToAllServers() throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+        updateDetails();
         return hasAccessToAllServers;
     }
 
@@ -115,7 +124,9 @@ public class User {
      * Returns the permissions of the user <br>
      * @return The permissions of the user, HashMap (ServerID, UserPermissions) - MAY BE NULL IF hasAccessToAllServers IS TRUE
      */
-    public HashMap<String, ArrayList<UserPermissions>> getPermissions() {
+    public HashMap<String, ArrayList<UserPermissions>> getPermissions() throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+        updateDetails();
         return permissions;
     }
 
@@ -124,6 +135,7 @@ public class User {
      * @return The creation LocalDateTime
      */
     public LocalDateTime getCreatedAt() {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
         return createdAt;
     }
 
@@ -131,7 +143,9 @@ public class User {
      * Returns the LocalDateTime of when the user was last edited
      * @return The last time the user was modified as a LocalDateTime
      */
-    public LocalDateTime getLastModifiedAt() {
+    public LocalDateTime getLastModifiedAt() throws APIServerSideException, APIUnauthorizedException, IOException, APINotFoundException {
+        if (!functional) throw new IllegalStateException("This user is not functional. Please get an user from the API.");
+        updateDetails();
         return lastModifiedAt;
     }
 
@@ -172,6 +186,7 @@ public class User {
                 this.createdAt = LocalDateTime.parse(response.getString("createdAt"));
                 this.lastModifiedAt = LocalDateTime.parse(response.getString("lastModifiedAt"));
 
+                this.permissions.clear();
                 JSONObject permissions = response.getJSONObject("customServerPermissions");
                 for (String serverID : permissions.keySet()) {
                     JSONObject permissionsObject = permissions.getJSONObject(serverID);
