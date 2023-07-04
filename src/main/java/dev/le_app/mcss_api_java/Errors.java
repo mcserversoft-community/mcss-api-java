@@ -98,6 +98,8 @@ public enum Errors {
     FORBIDDEN("You do not have access to this method. (ERR_403)"),
     /** The username cannot contain special characters */
     USER_NAME_SPECIAL_CHAR("User name cannot contain special characters."),
+    /** The user details are invalid */
+    INVALID_USER_DETAILS("The user details are not valid or incomplete (ERR_400)"),
     /** The MCSS returned an error 500 */
     API_ERROR("The MCSS API reutned a server-side error. Please try again later. (ERR_500)");
 
