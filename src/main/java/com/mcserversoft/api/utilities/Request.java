@@ -25,13 +25,17 @@ public class Request {
         this.baseUrl = url;
         this.headers = new HashMap<String, String>();
         this.addHeader("accept", "*/*");
-        this.addHeader("User-Agent", "Mozilla/5.0");
         this.addHeader("Content-Type", "application/json; charset=utf-8;");
     }
 
     // Adds a header to the request
     public void addHeader(String key, String value) {
         this.headers.put(key, value);
+    }
+
+    // Replaces a header in the request
+    public void setHeader(String key, String value) {
+        this.headers.replace(key, value);
     }
 
     // Removes a header from the request
@@ -71,8 +75,11 @@ public class Request {
         in.close();
 
         if(responseCode != 200) {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
             return new JSONObject().put("status", responseCode);
         } else {
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
             return new JSONObject(response.toString()).put("status", responseCode);
         }
     }
@@ -82,8 +89,6 @@ public class Request {
         URL postReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) postReqUrl.openConnection();
         con.setRequestMethod("POST");
-        con.addRequestProperty("User-Agent", "Mozilla/5.0");
-        con.setRequestProperty("Content-Type", "application/json");
 
         for (String key : this.headers.keySet()) {
             con.setRequestProperty(key, this.headers.get(key));
@@ -111,8 +116,11 @@ public class Request {
         in.close();
 
         if(responseCode != 200) {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
             return new JSONObject().put("status", responseCode);
         } else {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
             return new JSONObject(response.toString()).put("status", responseCode);
         }
     }
@@ -121,8 +129,6 @@ public class Request {
         URL putReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) putReqUrl.openConnection();
         con.setRequestMethod("PUT");
-        con.addRequestProperty("User-Agent", "Mozilla/5.0");
-        con.setRequestProperty("Content-Type", "application/json");
 
         for (String key : this.headers.keySet()) {
             con.setRequestProperty(key, this.headers.get(key));
@@ -150,8 +156,51 @@ public class Request {
         in.close();
 
         if(responseCode != 200) {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
             return new JSONObject().put("status", responseCode);
         } else {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            return new JSONObject(response.toString()).put("status", responseCode);
+        }
+    }
+
+    public JSONObject PATCH(String url, JSONObject body) throws IOException {
+        URL patchReqUrl = new URL(this.baseUrl + url);
+        HttpURLConnection con = (HttpURLConnection) patchReqUrl.openConnection();
+        con.setRequestMethod("PATCH");
+
+        for (String key : this.headers.keySet()) {
+            con.setRequestProperty(key, this.headers.get(key));
+        }
+
+        con.setDoOutput(true);
+
+        try (DataOutputStream outputStream = new DataOutputStream(con.getOutputStream())) {
+            outputStream.writeBytes(body.toString());
+            outputStream.flush();
+        }
+
+        con.setConnectTimeout(5000);
+        con.setReadTimeout(5000);
+
+        int responseCode = con.getResponseCode();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+
+        in.close();
+
+        if(responseCode != 200) {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
+            return new JSONObject().put("status", responseCode);
+        } else {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
             return new JSONObject(response.toString()).put("status", responseCode);
         }
     }
@@ -160,8 +209,6 @@ public class Request {
         URL deleteReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) deleteReqUrl.openConnection();
         con.setRequestMethod("DELETE");
-        con.addRequestProperty("User-Agent", "Mozilla/5.0");
-        con.setRequestProperty("Content-Type", "application/json");
 
         for (String key : this.headers.keySet()) {
             con.setRequestProperty(key, this.headers.get(key));
@@ -182,8 +229,11 @@ public class Request {
         in.close();
 
         if(responseCode != 200) {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
+            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
             return new JSONObject().put("status", responseCode);
         } else {
+            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
             return new JSONObject(response.toString()).put("status", responseCode);
         }
     }

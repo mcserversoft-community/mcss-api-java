@@ -2,9 +2,10 @@ package com.mcserversoft.commons.responses.server;
 
 import org.json.JSONObject;
 
+import com.mcserversoft.commons.responses.Response;
 import com.mcserversoft.commons.structures.KeepOnline;
 
-public class ServerResponse {
+public class ServerResponse extends Response {
     
     private String serverId;
     private int status;
@@ -21,6 +22,7 @@ public class ServerResponse {
     private String javaStartupLine;
 
     public ServerResponse(JSONObject json) {
+        super(json);
         this.serverId = json.getString("serverId");
         this.status = json.getInt("status");
         this.name = json.getString("name");
@@ -34,22 +36,6 @@ public class ServerResponse {
         this.keepOnline = KeepOnline.fromValue(json.getInt("keepOnline"));
         this.javaAllocatedMemory = json.getInt("javaAllocatedMemory");
         this.javaStartupLine = json.getString("javaStartupLine");
-    }
-
-    public ServerResponse() {
-        this.serverId = "";
-        this.status = 0;
-        this.name = "";
-        this.description = "";
-        this.pathToFolder = "";
-        this.folderName = "";
-        this.serverType = "";
-        this.creationDate = "";
-        this.isSetToAutoStart = false;
-        this.forceSaveOnStop = false;
-        this.keepOnline = KeepOnline.NONE;
-        this.javaAllocatedMemory = 0;
-        this.javaStartupLine = "";
     }
 
     public String getName() { return name; }

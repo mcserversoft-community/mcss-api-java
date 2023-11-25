@@ -20,6 +20,15 @@ public class ServerBuilder {
         this.keepOnline = keepOnline;
     }
 
+    public ServerBuilder(JSONObject json) {
+        this.name = json.getString("name");
+        this.description = json.getString("description");
+        this.isSetToAutoStart = json.getBoolean("isSetToAutoStart");
+        this.forceSaveOnStop = json.getBoolean("forceSaveOnStop");
+        this.javaAllocatedMemory = json.getInt("javaAllocatedMemory");
+        this.keepOnline = KeepOnline.fromValue(json.getInt("keepOnline"));
+    }
+
     public ServerBuilder() {
         this.name = "";
         this.description = "";

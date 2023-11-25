@@ -17,8 +17,8 @@ public class ServersResponse extends Response {
         super(responses);
         this.json = responses;
         this.servers = new ArrayList<ServerResponse>();
-        for (int i = 0; i < json.getJSONArray("servers").length(); i++) {
-            servers.add(new ServerResponse(json.getJSONArray("servers").getJSONObject(i)));
+        for (int i = 0; i < json.getJSONArray("data").length(); i++) {
+            servers.add(new ServerResponse(json.getJSONArray("data").getJSONObject(i)));
         }
     }
 

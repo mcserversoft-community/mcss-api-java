@@ -10,11 +10,19 @@ public class Response {
         this.json = response;
     }
 
+    public Response() {
+        this.json = new JSONObject();
+    }
+
     public int getStatus() {
         return this.json.getInt("status");
     }
 
     public JSONObject getRaw() {
         return this.json;
+    }
+
+    public String toString() {
+        return this.json.toString();
     }
 }

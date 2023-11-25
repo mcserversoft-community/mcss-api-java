@@ -6,8 +6,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.mcserversoft.api.MCSS;
-import com.mcserversoft.commons.responses.client.StatsResponse;
-
+import com.mcserversoft.api.servers.Server;
+import com.mcserversoft.commons.structures.ServerBuilder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -23,13 +23,16 @@ public class TestRequest {
     public void testGET() {
         try {
 
-            StatsResponse stats = mcss.getStats();
+            String serverId = mcss.getServers().get(0).getServerId();
 
-            System.out.println("Status: " + stats.getStatus());
-            System.out.println("Dev build: " + stats.isDevBuild());
-            System.out.println("MCSS version: " + stats.getMcssVersion());
-            System.out.println("API version: " + stats.getAPIVersion());
+            Server server = mcss.servers.getServer(serverId);
 
+            ServerBuilder newServer = new ServerBuilder(server.toJSON());
+
+            newServer.setName("SIRBlob");
+
+            System.out.println(server.edit(newServer));
+            
         } catch (Exception e) {
             e.printStackTrace();
 
