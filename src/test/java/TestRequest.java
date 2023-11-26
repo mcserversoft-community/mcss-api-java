@@ -1,3 +1,6 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -7,7 +10,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.mcserversoft.api.MCSS;
 import com.mcserversoft.api.servers.Server;
+import com.mcserversoft.commons.responses.user.UserResponse;
 import com.mcserversoft.commons.structures.ServerBuilder;
+import com.mcserversoft.commons.structures.UserBuilder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -23,15 +28,9 @@ public class TestRequest {
     public void testGET() {
         try {
 
-            String serverId = mcss.getServers().get(0).getServerId();
+            ArrayList<UserResponse> users = mcss.users.get();
 
-            Server server = mcss.servers.getServer(serverId);
-
-            ServerBuilder newServer = new ServerBuilder(server.toJSON());
-
-            newServer.setName("SIRBlob");
-
-            System.out.println(server.edit(newServer));
+            UserBuilder newUser = new UserBuilder();
             
         } catch (Exception e) {
             e.printStackTrace();

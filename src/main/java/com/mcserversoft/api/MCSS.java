@@ -8,6 +8,7 @@ import com.mcserversoft.api.servers.ServerCountFilter;
 import com.mcserversoft.api.servers.ServerFilter;
 import com.mcserversoft.api.servers.ServerType;
 import com.mcserversoft.api.servers.Servers;
+import com.mcserversoft.api.users.Users;
 import com.mcserversoft.api.utilities.Request;
 import com.mcserversoft.commons.responses.Response;
 import com.mcserversoft.commons.responses.client.ServerCountResponse;
@@ -26,6 +27,7 @@ public class MCSS {
     private Request request;
 
     public Servers servers;
+    public Users users;
 
     public MCSS(String ip, int port, String apiKey, boolean https) {
 
@@ -41,6 +43,7 @@ public class MCSS {
         this.request.addHeader("apiKey", apiKey);
 
         this.servers = new Servers(this.request);
+        this.users = new Users(this.request);
     }
 
     public MCSS(String ip, int port, String apiKey) {
