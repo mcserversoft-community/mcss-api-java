@@ -2,14 +2,15 @@ package com.mcserversoft.api.servers;
 
 import org.json.JSONObject;
 
+import com.mcserversoft.api.MCSS;
 import com.mcserversoft.api.utilities.Request;
 
 public class Servers {
 
     private Request request;
 
-    public Servers(Request request) {
-        this.request = request;
+    public Servers() {
+        this.request = MCSS.getRequest();
     }
 
     public Server getServer(String id) throws Exception {

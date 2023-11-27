@@ -28,6 +28,11 @@ public class Request {
         this.addHeader("Content-Type", "application/json; charset=utf-8;");
     }
 
+    // Sets the base URL
+    public void setBaseUrl(String url) {
+        this.baseUrl = url;
+    }
+
     // Adds a header to the request
     public void addHeader(String key, String value) {
         this.headers.put(key, value);

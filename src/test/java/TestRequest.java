@@ -1,6 +1,3 @@
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -9,9 +6,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.mcserversoft.api.MCSS;
-import com.mcserversoft.api.servers.Server;
-import com.mcserversoft.commons.responses.user.UserResponse;
-import com.mcserversoft.commons.structures.ServerBuilder;
 import com.mcserversoft.commons.structures.UserBuilder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -28,9 +22,16 @@ public class TestRequest {
     public void testGET() {
         try {
 
-            ArrayList<UserResponse> users = mcss.users.get();
+           // ArrayList<UserResponse> users = mcss.users.get();
 
-            UserBuilder newUser = new UserBuilder();
+            UserBuilder newUser = new UserBuilder()
+            .setEnabled(true)
+            .setAdmin(true)
+            .setHasAccessToAllServers(true)
+            .setPassword("password")
+            .setUsername("testuser");
+
+            System.out.println(mcss.users.create(newUser));
             
         } catch (Exception e) {
             e.printStackTrace();

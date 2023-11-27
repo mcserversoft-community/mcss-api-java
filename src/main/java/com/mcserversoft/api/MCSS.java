@@ -24,7 +24,7 @@ public class MCSS {
     private boolean https;
     private String apiKey;
 
-    private Request request;
+    private static Request request;
 
     public Servers servers;
     public Users users;
@@ -39,11 +39,11 @@ public class MCSS {
         String portString = (port > 0) ? (":" + port) : "";
         this.url = protocol + "://" + ip + portString + "/api/v2";
 
-        this.request = new Request(url);
-        this.request.addHeader("apiKey", apiKey);
+        request = new Request(url);
+        request.addHeader("apiKey", apiKey);
 
-        this.servers = new Servers(this.request);
-        this.users = new Users(this.request);
+        this.servers = new Servers();
+        this.users = new Users();
     }
 
     public MCSS(String ip, int port, String apiKey) {
@@ -51,56 +51,56 @@ public class MCSS {
     }
     
     public StatsResponse getStats() throws Exception {
-        return new StatsResponse(this.request.GET("/"));
+        return new StatsResponse(request.GET("/"));
     }
 
     public ArrayList<ServerResponse> getServers() throws Exception {
-        ServersResponse servers = new ServersResponse(this.request.GET("/servers"));
+        ServersResponse servers = new ServersResponse(request.GET("/servers"));
         return servers.getServers();
     }
 
     public ArrayList<ServerResponse> getServers(ServerFilter filter) throws Exception {
-        ServersResponse servers = new ServersResponse(this.request.GET("/servers?filter=" + filter));
+        ServersResponse servers = new ServersResponse(request.GET("/servers?filter=" + filter));
         return servers.getServers();
     }
 
     public ArrayList<ServerResponse> getServers(int filter) throws Exception {
-        ServersResponse servers = new ServersResponse(this.request.GET("/servers?filter=" + filter));
+        ServersResponse servers = new ServersResponse(request.GET("/servers?filter=" + filter));
         return servers.getServers();
     }
 
     public ServerCountResponse getServerCount() throws Exception {
-        return new ServerCountResponse(this.request.GET("/servers/count"));
+        return new ServerCountResponse(request.GET("/servers/count"));
     }
 
     public ServerCountResponse getServerCount(ServerCountFilter filter) throws Exception {
         if(filter == ServerCountFilter.BYSERVERTYPE) throw new Exception("ServerCountFilter.BYSERVERTYPE is not supported yet");
-        return new ServerCountResponse(this.request.GET("/servers/count?filter=" + filter));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter));
     }
 
     public ServerCountResponse getServerCount(ServerCountFilter filter, ServerType type) throws Exception {
-        return new ServerCountResponse(this.request.GET("/servers/count?filter=" + filter + "&type=" + type));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
     }
 
     public ServerCountResponse getServerCount(int filter) throws Exception {
         if(filter == ServerCountFilter.BYSERVERTYPE.getValue()) throw new Exception("ServerCountFilter.BYSERVERTYPE is not supported yet");
-        return new ServerCountResponse(this.request.GET("/servers/count?filter=" + filter));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter));
     }
 
     public ServerCountResponse getServerCount(int filter, String type) throws Exception {
-        return new ServerCountResponse(this.request.GET("/servers/count?filter=" + filter + "&type=" + type));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
     }
 
     public ServerCountResponse getServerCount(int filter, ServerType type) throws Exception {
-        return new ServerCountResponse(this.request.GET("/servers/count?filter=" + filter + "&type=" + type));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
     }
 
     public SettingsResponse getSettings() throws Exception {
-        return new SettingsResponse(this.request.GET("/mcss/settings/All"));
+        return new SettingsResponse(request.GET("/mcss/settings/All"));
     }
 
     public Response updateSettings(int deleteOldBackupsThreshold) throws Exception {
-        return new Response(this.request.PATCH("/mcss/settings", new JSONObject().put("deleteOldBackupsThreshold", deleteOldBackupsThreshold)));
+        return new Response(request.PATCH("/mcss/settings", new JSONObject().put("deleteOldBackupsThreshold", deleteOldBackupsThreshold)));
     }
 
     public String getUrl() { return this.url; }
@@ -113,8 +113,6 @@ public class MCSS {
         String portString = (this.port > 0) ? (":" + this.port) : "";
         this.url = protocol + "://" + ip + portString + "/api/v2";
 
-        this.request = new Request(url);
-        this.servers = new Servers(this.request);
     }
     
     public void setPort(int port) {
@@ -122,9 +120,7 @@ public class MCSS {
         String protocol = this.https ? "https" : "http";
         String portString = (this.port > 0) ? (":" + this.port) : "";
         this.url = protocol + "://" + this.url.split("://")[1].split(":")[0] + portString + "/api/v2";
-
-        this.request = new Request(url);
-        this.servers = new Servers(this.request);
+        request.setBaseUrl(this.url);
     }
 
     public void setHttps(boolean https) {
@@ -132,19 +128,15 @@ public class MCSS {
         String protocol = this.https ? "https" : "http";
         String portString = (this.port > 0) ? (":" + this.port) : "";
         this.url = protocol + "://" + this.url.split("://")[1].split(":")[0] + portString + "/api/v2";
-
-        this.request = new Request(url);
-        this.servers = new Servers(this.request);
+        request.setBaseUrl(this.url);
     }
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
-        this.request.setHeader("apiKey", apiKey);
-
-        this.servers = new Servers(this.request);
+        request.setHeader("apiKey", apiKey);
     }
 
-    public Request getRequest() {
-        return this.request;
+    public static Request getRequest() {
+        return request;
     }
 }

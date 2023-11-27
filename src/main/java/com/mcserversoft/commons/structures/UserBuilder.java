@@ -18,7 +18,7 @@ public class UserBuilder {
 
     public UserBuilder(JSONObject json) {
         this.username = json.getString("username");
-        this.password = null;
+        this.password = json.getString("password");
         this.enabled = json.getBoolean("enabled");
         this.isAdmin = json.getBoolean("isAdmin");
         this.hasAccessToAllServers = json.getBoolean("hasAccessToAllServers");
@@ -52,14 +52,14 @@ public class UserBuilder {
     public boolean hasAccessToAllServers() { return hasAccessToAllServers; }
     public PermissionObject[] getPermissions() { return permissions; }
 
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public void setAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
-    public void setHasAccessToAllServers(boolean hasAccessToAllServers) { this.hasAccessToAllServers = hasAccessToAllServers; }
+    public UserBuilder setUsername(String username) { this.username = username; return this; }
+    public UserBuilder setPassword(String password) { this.password = password; return this; }
+    public UserBuilder setEnabled(boolean enabled) { this.enabled = enabled; return this; }
+    public UserBuilder setAdmin(boolean isAdmin) { this.isAdmin = isAdmin; return this; }
+    public UserBuilder setHasAccessToAllServers(boolean hasAccessToAllServers) { this.hasAccessToAllServers = hasAccessToAllServers; return this; }
 
-    public void setPermissions(PermissionObject[] permissions) { this.permissions = permissions; }
-    public void setPermissions(JSONObject permissions) {
+    public UserBuilder setPermissions(PermissionObject[] permissions) { this.permissions = permissions; return this; }
+    public UserBuilder setPermissions(JSONObject permissions) {
         for (String serverId : permissions.keySet()) {
             HashMap<String, Permission> perms = new HashMap<String, Permission>();
             JSONObject serverPerms = permissions.getJSONObject(serverId);
@@ -68,6 +68,7 @@ public class UserBuilder {
             }
             this.permissions[this.permissions.length] = new PermissionObject(serverId, perms);
         }
+        return this;
     }
 
     public JSONObject toJSON() {
