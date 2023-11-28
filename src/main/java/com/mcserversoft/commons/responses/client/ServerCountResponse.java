@@ -10,6 +10,7 @@ public class ServerCountResponse extends Response {
 
     public ServerCountResponse(JSONObject json) throws Exception {
         super(json);
+        this.json = json;
     }
 
     public int getCount() {

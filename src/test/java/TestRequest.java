@@ -4,8 +4,14 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
 
 import com.mcserversoft.api.MCSS;
+import com.mcserversoft.commons.responses.server.ServerResponse;
+import com.mcserversoft.commons.responses.client.StatsResponse;
+import com.mcserversoft.commons.responses.user.UserResponse;
 import com.mcserversoft.commons.structures.UserBuilder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -18,24 +24,29 @@ public class TestRequest {
     
     @Test
     @Order(1)
-    @DisplayName("Test GET request")
-    public void testGET() {
+    @DisplayName("Client Test")
+    public void clientGet() {
         try {
+            StatsResponse clientStats = mcss.getStats();
+            int serverCount = mcss.getServerCount();
 
-           // ArrayList<UserResponse> users = mcss.users.get();
-
-            UserBuilder newUser = new UserBuilder()
-            .setEnabled(true)
-            .setAdmin(true)
-            .setHasAccessToAllServers(true)
-            .setPassword("password")
-            .setUsername("testuser");
-
-            System.out.println(mcss.users.create(newUser));
-            
+            assertTrue(clientStats.getStatus()==200);
+            assertTrue(serverCount > 0);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
 
+    @Test
+    @Order(2)
+    @DisplayName("Servers Test")
+    public void serverGet() {
+        try {
+            ArrayList<ServerResponse> servers = mcss.getServers();
+
+            assertTrue(servers.size() > 0);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

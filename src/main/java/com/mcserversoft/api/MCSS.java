@@ -69,30 +69,30 @@ public class MCSS {
         return servers.getServers();
     }
 
-    public ServerCountResponse getServerCount() throws Exception {
-        return new ServerCountResponse(request.GET("/servers/count"));
+    public int getServerCount() throws Exception {
+        return new ServerCountResponse(request.GET("/servers/count")).getCount();
     }
 
-    public ServerCountResponse getServerCount(ServerCountFilter filter) throws Exception {
+    public int getServerCount(ServerCountFilter filter) throws Exception {
         if(filter == ServerCountFilter.BYSERVERTYPE) throw new Exception("ServerCountFilter.BYSERVERTYPE is not supported yet");
-        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter)).getCount();
     }
 
-    public ServerCountResponse getServerCount(ServerCountFilter filter, ServerType type) throws Exception {
-        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
+    public int getServerCount(ServerCountFilter filter, ServerType type) throws Exception {
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type)).getCount();
     }
 
-    public ServerCountResponse getServerCount(int filter) throws Exception {
+    public int getServerCount(int filter) throws Exception {
         if(filter == ServerCountFilter.BYSERVERTYPE.getValue()) throw new Exception("ServerCountFilter.BYSERVERTYPE is not supported yet");
-        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter));
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter)).getCount();
     }
 
-    public ServerCountResponse getServerCount(int filter, String type) throws Exception {
-        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
+    public int getServerCount(int filter, String type) throws Exception {
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type)).getCount();
     }
 
-    public ServerCountResponse getServerCount(int filter, ServerType type) throws Exception {
-        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type));
+    public int getServerCount(int filter, ServerType type) throws Exception {
+        return new ServerCountResponse(request.GET("/servers/count?filter=" + filter + "&type=" + type)).getCount();
     }
 
     public SettingsResponse getSettings() throws Exception {
