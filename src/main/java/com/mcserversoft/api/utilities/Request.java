@@ -10,6 +10,8 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import com.mcserversoft.api.exceptions.HTTPException;
+
 // Class to handle HTTP requests
 
 public class Request {
@@ -55,7 +57,31 @@ public class Request {
 
     /* HTTP REQUEST FUNCTIONS */
 
-    public JSONObject GET(String url, Object... args) throws IOException {   
+    // Generates a response object
+    private JSONObject generateResponse(int responseCode, String response) throws HTTPException {
+        switch(responseCode) {
+            case 200:
+                if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
+                return new JSONObject(response.toString()).put("status", responseCode);
+            case 204:
+                return new JSONObject("{}").put("status", responseCode);
+            case 400:
+                throw new HTTPException(responseCode, "Bad request");
+            case 401:
+                throw new HTTPException(responseCode, "Unauthorized");
+            case 403:
+                throw new HTTPException(responseCode, "Forbidden");
+            case 404:
+                throw new HTTPException(responseCode, "Not found");
+            case 500:
+                throw new HTTPException(responseCode, "Internal server error");
+            default:
+                if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
+                return new JSONObject().put("status", responseCode);
+        }
+    }
+
+    public JSONObject GET(String url, Object... args) throws IOException, HTTPException {
         URL getReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) getReqUrl.openConnection();
         con.setRequestMethod("GET");
@@ -79,17 +105,10 @@ public class Request {
 
         in.close();
 
-        if(responseCode != 200) {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject().put("status", responseCode);
-        } else {
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject(response.toString()).put("status", responseCode);
-        }
+        return this.generateResponse(responseCode, response.toString());
     }
 
-    public JSONObject POST(String url, JSONObject body) throws IOException {
+    public JSONObject POST(String url, JSONObject body) throws IOException, HTTPException {
 
         URL postReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) postReqUrl.openConnection();
@@ -110,7 +129,7 @@ public class Request {
         con.setReadTimeout(5000);
 
         int responseCode = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
         String inputLine;
         StringBuffer response = new StringBuffer();
 
@@ -120,17 +139,10 @@ public class Request {
 
         in.close();
 
-        if(responseCode != 200) {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject().put("status", responseCode);
-        } else {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            return new JSONObject(response.toString()).put("status", responseCode);
-        }
+        return this.generateResponse(responseCode, response.toString());
     }
 
-    public JSONObject PUT(String url, JSONObject body) throws IOException {
+    public JSONObject PUT(String url, JSONObject body) throws IOException, HTTPException {
         URL putReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) putReqUrl.openConnection();
         con.setRequestMethod("PUT");
@@ -150,7 +162,7 @@ public class Request {
         con.setReadTimeout(5000);
 
         int responseCode = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
         String inputLine;
         StringBuffer response = new StringBuffer();
 
@@ -160,17 +172,10 @@ public class Request {
 
         in.close();
 
-        if(responseCode != 200) {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject().put("status", responseCode);
-        } else {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            return new JSONObject(response.toString()).put("status", responseCode);
-        }
+        return this.generateResponse(responseCode, response.toString());
     }
 
-    public JSONObject PATCH(String url, JSONObject body) throws IOException {
+    public JSONObject PATCH(String url, JSONObject body) throws IOException, HTTPException {
         URL patchReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) patchReqUrl.openConnection();
         con.setRequestMethod("PATCH");
@@ -190,7 +195,7 @@ public class Request {
         con.setReadTimeout(5000);
 
         int responseCode = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
         String inputLine;
         StringBuffer response = new StringBuffer();
 
@@ -200,17 +205,10 @@ public class Request {
 
         in.close();
 
-        if(responseCode != 200) {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject().put("status", responseCode);
-        } else {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            return new JSONObject(response.toString()).put("status", responseCode);
-        }
+        return this.generateResponse(responseCode, response.toString());
     }
 
-    public JSONObject DELETE(String url) throws IOException {
+    public JSONObject DELETE(String url) throws IOException, HTTPException {
         URL deleteReqUrl = new URL(this.baseUrl + url);
         HttpURLConnection con = (HttpURLConnection) deleteReqUrl.openConnection();
         con.setRequestMethod("DELETE");
@@ -223,7 +221,7 @@ public class Request {
         con.setReadTimeout(5000);
 
         int responseCode = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
         String inputLine;
         StringBuffer response = new StringBuffer();
 
@@ -233,14 +231,7 @@ public class Request {
 
         in.close();
 
-        if(responseCode != 200) {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            if(!response.toString().startsWith("{")) return new JSONObject("{ \"data\":" + response.toString() + "}").put("status", responseCode);
-            return new JSONObject().put("status", responseCode);
-        } else {
-            if(response.toString().isEmpty()) return new JSONObject("{}").put("status", responseCode);
-            return new JSONObject(response.toString()).put("status", responseCode);
-        }
+        return this.generateResponse(responseCode, response.toString());
     }
 
 }

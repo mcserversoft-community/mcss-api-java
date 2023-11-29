@@ -43,10 +43,10 @@ public class TestRequest {
     public void serverGet() {
         try {
             ArrayList<ServerResponse> servers = mcss.getServers();
-
             assertTrue(servers.size() > 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

@@ -44,5 +44,4 @@ public class Users {
         return new Response(this.request.POST("/users/wipe/sessions", new JSONObject()));
     }
 
-
 }

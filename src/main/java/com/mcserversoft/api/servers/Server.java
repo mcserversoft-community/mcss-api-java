@@ -2,6 +2,8 @@ package com.mcserversoft.api.servers;
 
 import org.json.JSONObject;
 
+import com.mcserversoft.api.backups.Backups;
+import com.mcserversoft.api.scheduler.Scheduler;
 import com.mcserversoft.api.utilities.Request;
 import com.mcserversoft.commons.responses.Response;
 import com.mcserversoft.commons.responses.server.ServerResponse;
@@ -11,9 +13,14 @@ public class Server extends ServerResponse {
 
     private Request request;
 
+    private Scheduler scheduler;
+
+    private Backups backups;
+
     public Server(Request request, JSONObject response) {
         super(response);
         this.request = request;
+        this.scheduler = new Scheduler(this.getServerId());
     }
 
     public ServerStats getStats() throws Exception {
@@ -82,6 +89,14 @@ public class Server extends ServerResponse {
 
     public boolean isConsoleOutdated(String secondLastLine, String lastLine) throws Exception {
         return this.request.GET("/servers/" + this.getServerId() + "/console?secondLastLine=" + secondLastLine + "&lastLine=" + lastLine).getBoolean("outdated");
+    }
+
+    public Scheduler getScheduler() {
+        return this.scheduler;
+    }
+
+    public Backups getBackups() {
+        return this.backups;
     }
     
 }

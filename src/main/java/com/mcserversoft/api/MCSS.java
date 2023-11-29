@@ -30,7 +30,6 @@ public class MCSS {
     public Users users;
 
     public MCSS(String ip, int port, String apiKey, boolean https) {
-
         this.port = port;
         this.https = https;
         this.apiKey = apiKey;
