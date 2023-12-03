@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 
-import com.mcserversoft.api.MCSS;
-import com.mcserversoft.commons.responses.server.ServerResponse;
-import com.mcserversoft.commons.responses.client.StatsResponse;
+import dev.le_app.mcss_api_java.api.MCSS;
+import dev.le_app.mcss_api_java.commons.responses.server.ServerResponse;
+import dev.le_app.mcss_api_java.commons.responses.client.StatsResponse;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
