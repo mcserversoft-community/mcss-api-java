@@ -16,9 +16,9 @@ import com.mcserversoft.commons.responses.client.StatsResponse;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestRequest {
 
-    String apiKey = "AuICAbD3gMX7A3waWOZwuMsGhPPwWhGUss8euBHi6OCPi1P8qzIblphcZPdy9GWVdjSFsJrz8w33WYr5n02hindVUlke22ucpUAkEG6j04LfxyBXrCW3gxTh";
+    String apiKey = "API";
 
-    MCSS mcss = new MCSS("dev.bosstop.tech", 80, apiKey);
+    MCSS mcss = new MCSS("URI", 80, apiKey);
     
     @Test
     @Order(1)
