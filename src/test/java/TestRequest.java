@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import com.mcserversoft.api.MCSS;
 import com.mcserversoft.commons.responses.server.ServerResponse;
 import com.mcserversoft.commons.responses.client.StatsResponse;
-import com.mcserversoft.commons.responses.user.UserResponse;
-import com.mcserversoft.commons.structures.UserBuilder;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

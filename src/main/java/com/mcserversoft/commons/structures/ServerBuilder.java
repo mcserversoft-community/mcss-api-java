@@ -1,6 +1,11 @@
 package com.mcserversoft.commons.structures;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
+
+import com.mcserversoft.api.exceptions.RequiredException;
 
 public class ServerBuilder {
     
@@ -59,7 +64,17 @@ public class ServerBuilder {
     public void setKeepOnline(KeepOnline keepOnline) { this.keepOnline = keepOnline; }
     public void setKeepOnline(int keepOnline) { this.keepOnline = KeepOnline.fromValue(keepOnline); }
 
-    public JSONObject toJSON() {
+    private void check() throws RequiredException {
+        List<String> requiredFields = new ArrayList<>();
+        if(this.name == null || this.name.isEmpty()) requiredFields.add("name");
+        if(this.description == null || this.description.isEmpty()) requiredFields.add("description");
+        if(this.javaAllocatedMemory < 0) requiredFields.add("javaAllocatedMemory");
+        if(this.keepOnline == null) requiredFields.add("keepOnline");
+        if(!requiredFields.isEmpty()) throw new RequiredException("The following fields are required: " + String.join(", ", requiredFields), requiredFields);
+    }
+
+    public JSONObject toJSON() throws RequiredException {
+        this.check();
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("description", this.description);
@@ -69,4 +84,4 @@ public class ServerBuilder {
         json.put("keepOnline", this.keepOnline.getValue());
         return json;
     }
-}
+} 
