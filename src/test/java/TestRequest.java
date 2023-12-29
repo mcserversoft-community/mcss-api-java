@@ -16,9 +16,9 @@ import dev.le_app.mcss_api_java.commons.responses.client.StatsResponse;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestRequest {
 
-    String apiKey = "API";
+    String apiKey = "BaFfXXBmRTeRVqGWq1dPSa7imoHhlYWc7gHIWFGiY6eFVKZj41X5OLdC513ci5XT8hgdqBb9KrW4o88hl4ySuwMpNFTiCD9HUhdnWouMKKs3i0Ve8OFBnpsL";
 
-    MCSS mcss = new MCSS("URI", 80, apiKey);
+    MCSS mcss = new MCSS("bosstop.tech", 80, apiKey);
     
     @Test
     @Order(1)
@@ -32,6 +32,7 @@ public class TestRequest {
             assertTrue(serverCount > 0);
         } catch (Exception e) {
             e.printStackTrace();
+            assertTrue(false);
         }
     }
 
@@ -44,6 +45,7 @@ public class TestRequest {
             assertTrue(servers.size() > 0);
         } catch (Exception e) {
             e.printStackTrace();
+            assertTrue(false);
         }
     }
 

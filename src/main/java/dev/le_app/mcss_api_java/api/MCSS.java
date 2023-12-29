@@ -25,7 +25,6 @@ public class MCSS {
     private String url;
     private int port;
     private boolean https;
-    private String apiKey;
 
     private static Request request;
 
@@ -35,7 +34,6 @@ public class MCSS {
     public MCSS(String ip, int port, String apiKey, boolean https) {
         this.port = port;
         this.https = https;
-        this.apiKey = apiKey;
 
         String protocol = https ? "https" : "http";
         String portString = (port > 0) ? (":" + port) : "";
@@ -108,7 +106,6 @@ public class MCSS {
     public String getUrl() { return this.url; }
     public int getPort() { return this.port; }
     public boolean isHttps() { return this.https; }
-    public String getApiKey() { return this.apiKey; }
 
     public void setUrl(String ip) {
         String protocol = this.https ? "https" : "http";
@@ -134,7 +131,6 @@ public class MCSS {
     }
 
     public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
         request.setHeader("apiKey", apiKey);
     }
 

@@ -49,11 +49,6 @@ public class Request {
         this.headers.remove(key);
     }
 
-    // Returns the headers
-    public HashMap<String, String> getHeaders() {
-        return this.headers;
-    }
-
     /* HTTP REQUEST FUNCTIONS */
 
     // Generates a response object
